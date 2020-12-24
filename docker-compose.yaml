@@ -1,8 +1,16 @@
 version: "3.2"
 
 services:
-  web:
-    container_name: web
+  adminer:
+    container_name: adminer
+    image: adminer:latest
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - app-net
+  league:
+    container_name: league
     build:
       context: .
       dockerfile: ./build/Dockerfile
@@ -17,62 +25,30 @@ services:
       - ./manage.py:/home/app/manage.py
       - ./setup.py:/home/app/setup.py
     env_file:
-      - # web env
+      - ${HUNCHO_DIR}/env/dev/.env.league
     healthcheck:
-      test: curl --fail -s web:5000/ping || exit 1
+      test: curl --fail -s league:5000/ping || exit 1
       interval: 60s
       timeout: 5s
       retries: 5
     depends_on:
-      - cache
-      - db
-  cache:
-    container_name: cache
-    image: redis:6
-    restart: unless-stopped
-    volumes:
-      - # cache data :/var/lib/redis
-      - # cache conf :/usr/local/etc/redis/redis.conf
-    env_file:
-      - # cache env
-    healthcheck:
-      test: [ "CMD", "redis-cli","ping" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-  db:
-    container_name: db
+      - league_db
+    networks:
+      - app-net
+  league_db:
+    container_name: league_db
     image: postgres:9.6
     volumes:
-      - # db data :/var/lib/postgredb/data/
+      - ${HUNCHO_DIR}/data/dev/league_db/data:/var/lib/postgresql/data/
     env_file:
-      - # db env
+      - ${HUNCHO_DIR}/env/dev/.env.league_db
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U web" ]
+      test: [ "CMD-SHELL", "pg_isready -U league" ]
       interval: 10s
       timeout: 5s
       retries: 20
-  mongodb:
-    container_name: db
-    image: mongo:3.6
-    volumes:
-      - # mongodb data :/data/db
-    env_file:
-      - # mongodb env
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo mongodb:27017/test --quiet
-      interval: 10s
-      timeout: 5s
-      retries: 20
-  proxy:
-    container_name: proxy
-    build:
-      context: ./proxy
-      dockerfile: ./proxy/build/Dockerfile
-    restart: on-failure
-    volumes:
-      - ./statics/.:/usr/share/nginx/
-    ports:
-      - 80:80
-    depends_on:
-      - web
+    networks:
+      - app-net
+networks:
+  app-net:
+    driver: bridge

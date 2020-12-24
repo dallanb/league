@@ -8,12 +8,11 @@ class Config(object):
     PROPAGATE_EXCEPTIONS = os.getenv("PROPAGATE_EXCEPTIONS")
     TESTING = os.getenv("TESTING", False)
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite://")
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = True  # Update to true for search
+    SECRET_KEY = os.getenv("SECRET_KEY")
+    KONG_URL = os.getenv("KONG_URL")
     KAFKA_URL = os.getenv("KAFKA_URL")
     KAFKA_TOPICS = os.getenv("KAFKA_TOPICS").split(",")
-    MONGODB_SETTINGS = {
-        'host': os.getenv("MONGO_URL")
-    }
     REDIS_CONFIG = {
         'CACHE_TYPE': 'redis',
         'CACHE_REDIS_HOST': os.getenv("CACHE_HOST"),
@@ -35,7 +34,7 @@ class Config(object):
                 'stream': 'ext://sys.stdout'
             },
             'debug_rotating_file_handler': {
-                'level': 'DEBUG',
+                'level': 'INFO',
                 'formatter': 'debug',
                 'class': 'logging.handlers.TimedRotatingFileHandler',
                 'filename': 'logs/tapir.log',
@@ -44,7 +43,7 @@ class Config(object):
                 'backupCount': 10
             },
             'error_file_handler': {
-                'level': 'WARNING',
+                'level': 'ERROR',
                 'formatter': 'error',
                 'class': 'logging.FileHandler',
                 'filename': 'logs/error.log',

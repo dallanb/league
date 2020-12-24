@@ -3,7 +3,6 @@ from flask_caching import Cache
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
-from flask_mongoengine import MongoEngine
 from flask_restful import Api, marshal_with
 from flask_seeder import FlaskSeeder
 from flask_sqlalchemy import SQLAlchemy
@@ -16,8 +15,6 @@ cache = Cache(app, config=app.config['REDIS_CONFIG'])
 CORS(app)
 # db
 db = SQLAlchemy(app)
-# mongodb
-mongodb = MongoEngine(app)
 # migrate
 migrate = Migrate(app, db, compare_type=True)
 # ma

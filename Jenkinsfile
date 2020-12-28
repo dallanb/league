@@ -14,7 +14,7 @@ pipeline {
                     dockerImageName = registry + ":$BRANCH_NAME"
                     dockerImage = ''
                     if (env.BRANCH_NAME == 'qaw') {
-                        docker.image(dockerImageName).pull()
+//                         docker.image(dockerImageName).pull()
                         dockerImage = docker.build(dockerImageName, "-f build/Dockerfile.$BRANCH_NAME --cache-from $dockerImageName .")
                     }
                 }

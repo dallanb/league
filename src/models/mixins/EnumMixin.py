@@ -4,7 +4,7 @@ from ... import db
 from ...common.utils import camel_to_snake, time_now
 
 
-class StatusMixin(object):
+class EnumMixin(object):
 
     @declared_attr
     def __tablename__(cls):

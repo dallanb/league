@@ -13,7 +13,7 @@ app.config.from_object("src.config.Config")
 # cache
 cache = Cache(app, config=app.config['REDIS_CONFIG'])
 # cors
-CORS(app)
+CORS(app, supports_credentials=True)
 # db
 db = SQLAlchemy(app)
 make_searchable(db.metadata)

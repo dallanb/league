@@ -31,6 +31,8 @@ services:
       interval: 60s
       timeout: 5s
       retries: 5
+    ports:
+      - 20010:5000
     depends_on:
       - league_db
     networks:

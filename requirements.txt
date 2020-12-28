@@ -22,5 +22,6 @@ pytest==5.4.3
 python-dateutil==2.8.1
 redis==3.5.3
 requests==2.23.0
+SQLAlchemy-Searchable==1.2.0
 SQLAlchemy-Utils==0.36.6
 webargs==6.1.0

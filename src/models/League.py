@@ -15,9 +15,11 @@ class League(db.Model, BaseMixin):
 
     # FK
     status = db.Column(db.Enum(StatusEnum), db.ForeignKey('status.name'), nullable=False)
+    avatar_uuid = db.Column(UUIDType(binary=False), db.ForeignKey('avatar.uuid'), nullable=True)
 
     # Relationship
     league_status = db.relationship("Status")
+    avatar = db.relationship("Avatar", back_populates="league", lazy="noload")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

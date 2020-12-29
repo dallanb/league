@@ -18,10 +18,16 @@ class DumpLeagueSchema(Schema):
     status = EnumField(StatusEnum)
 
     def get_attribute(self, obj, attr, default):
-        return getattr(obj, attr, default)
+        if attr == 'avatar':
+            return getattr(obj, attr, default) or {} if any(
+                attr in include for include in self.context.get('include', [])) else None
+        else:
+            return getattr(obj, attr, default)
 
     @post_dump
     def make_obj(self, data, **kwargs):
+        if data.get('avatar', False) is None:
+            del data['avatar']
         return data
 
 

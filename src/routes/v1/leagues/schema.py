@@ -2,6 +2,7 @@ from marshmallow import Schema, post_dump
 from marshmallow_enum import EnumField
 from webargs import fields
 
+from ..avatars.schema import DumpAvatarSchema
 from ....common import StatusEnum
 
 
@@ -16,6 +17,7 @@ class DumpLeagueSchema(Schema):
     owner_uuid = fields.UUID()
     name = fields.String()
     status = EnumField(StatusEnum)
+    avatar = fields.Nested(DumpAvatarSchema)
 
     def get_attribute(self, obj, attr, default):
         if attr == 'avatar':

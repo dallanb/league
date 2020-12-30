@@ -87,8 +87,8 @@ def configure():
     configure_db()
 
 
-@cli.command("delete_db")
-def delete_db():
+@cli.command("delete")
+def delete():
     clear_db()
 
 

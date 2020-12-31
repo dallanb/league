@@ -3,7 +3,7 @@ from sqlalchemy_utils.types import TSVectorType
 
 from .mixins import BaseMixin
 from .. import db
-from ..common import StatusEnum
+from ..common import LeagueStatusEnum
 
 
 class League(db.Model, BaseMixin):
@@ -14,12 +14,13 @@ class League(db.Model, BaseMixin):
     search_vector = db.Column(TSVectorType('name'))
 
     # FK
-    status = db.Column(db.Enum(StatusEnum), db.ForeignKey('status.name'), nullable=False)
+    status = db.Column(db.Enum(LeagueStatusEnum), db.ForeignKey('league_status.name'), nullable=False)
     avatar_uuid = db.Column(UUIDType(binary=False), db.ForeignKey('avatar.uuid'), nullable=True)
 
     # Relationship
-    league_status = db.relationship("Status")
-    avatar = db.relationship("Avatar", back_populates="league", lazy="noload")
+    league_status = db.relationship("LeagueStatus")
+    avatar = db.relationship("Avatar", lazy="noload")
+    members = db.relationship("Member", back_populates="league", lazy="noload")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

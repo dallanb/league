@@ -1,13 +1,13 @@
 import logging
 
-from src import Status, db
+from src import db
 
 
-def init_status(status_enums):
+def init_status(model, status_enums):
     logging.info(f"init_status started")
 
     for status_enum in status_enums:
-        status = Status(name=status_enum)
+        status = model(name=status_enum)
         db.session.add(status)
 
     db.session.commit()

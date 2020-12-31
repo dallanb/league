@@ -5,7 +5,7 @@ from .schema import *
 from ..base import Base
 from ....common.auth import check_user, assign_user
 from ....common.response import DataResponse
-from ....services import LeagueService
+from ....services import LeagueService, MemberService
 
 
 class LeaguesAPI(Base):
@@ -50,6 +50,7 @@ class LeaguesListAPI(Base):
     def __init__(self):
         Base.__init__(self)
         self.league = LeagueService()
+        self.member = MemberService()
 
     @marshal_with(DataResponse.marshallable())
     def get(self):
@@ -78,6 +79,13 @@ class LeaguesListAPI(Base):
     def post(self):
         data = self.clean(schema=create_schema, instance=request.get_json())
         league = self.league.create(status='active', owner_uuid=g.user, name=data['name'])
+
+        members = data.pop('members')
+        if members:
+            # str_members = [str(member) for member in members]
+            for user_uuid in members:
+                status = 'active' if g.user == user_uuid else 'pending'
+                self.member.create(user_uuid=user_uuid, status=status, league=league)
         return DataResponse(
             data={
                 'leagues': self.dump(

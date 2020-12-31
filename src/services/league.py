@@ -31,3 +31,8 @@ class League(Base):
         # if league status is being updated we will trigger a notification
         league = self.assign_attr(instance=instance, attr=kwargs)
         return self.save(instance=league)
+
+    def find_by_participant(self, filters, paginate):
+        query = self.league_model.query.filter(
+            self.league_model.members.any(**filters))
+        return self.db.clean_query(query=query, **paginate)

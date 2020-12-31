@@ -3,7 +3,7 @@ from marshmallow_enum import EnumField
 from webargs import fields
 
 from ..avatars.schema import DumpAvatarSchema
-from ....common import StatusEnum
+from ....common import LeagueStatusEnum
 
 
 class CreateLeagueSchema(Schema):
@@ -16,7 +16,7 @@ class DumpLeagueSchema(Schema):
     mtime = fields.Integer()
     owner_uuid = fields.UUID()
     name = fields.String()
-    status = EnumField(StatusEnum)
+    status = EnumField(LeagueStatusEnum)
     avatar = fields.Nested(DumpAvatarSchema)
 
     def get_attribute(self, obj, attr, default):
@@ -50,9 +50,16 @@ class FetchAllLeagueSchema(Schema):
     owner_uuid = fields.UUID(required=False)
 
 
+class FetchMemberLeaguesSchema(Schema):
+    page = fields.Int(required=False, missing=1)
+    per_page = fields.Int(required=False, missing=10)
+    expand = fields.DelimitedList(fields.String(), required=False, missing=[])
+
+
 create_schema = CreateLeagueSchema()
 dump_schema = DumpLeagueSchema()
 dump_many_schema = DumpLeagueSchema(many=True)
 update_schema = UpdateLeagueSchema()
 fetch_schema = FetchLeagueSchema()
 fetch_all_schema = FetchAllLeagueSchema()
+fetch_member_leagues_schema = FetchMemberLeaguesSchema()

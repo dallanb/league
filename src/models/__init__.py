@@ -1,3 +1,5 @@
 from .Avatar import Avatar
 from .League import League
-from .Status import Status
+from .LeagueStatus import LeagueStatus
+from .Member import Member
+from .MemberStatus import MemberStatus

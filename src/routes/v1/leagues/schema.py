@@ -54,7 +54,7 @@ class FetchAllLeagueSchema(Schema):
 class FetchMemberLeaguesSchema(Schema):
     page = fields.Int(required=False, missing=1)
     per_page = fields.Int(required=False, missing=10)
-    expand = fields.DelimitedList(fields.String(), required=False, missing=[])
+    include = fields.DelimitedList(fields.String(), required=False, missing=[])
 
 
 create_schema = CreateLeagueSchema()

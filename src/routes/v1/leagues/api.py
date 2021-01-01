@@ -104,8 +104,8 @@ class MembersLeaguesListAPI(Base):
     @marshal_with(DataResponse.marshallable())
     def get(self, uuid):
         data = self.clean(schema=fetch_member_leagues_schema, instance=request.args)
-        leagues = self.league.find_by_participant(filters={'uuid': uuid},
-                                                  paginate={'page': data['page'], 'per_page': data['per_page']})
+        leagues = self.league.find_by_participant(filters={'uuid': uuid}, include=data['include'], paginate=
+        {'page': data['page'], 'per_page': data['per_page']})
         return DataResponse(
             data={
                 '_metadata': self.prepare_metadata(
@@ -117,7 +117,7 @@ class MembersLeaguesListAPI(Base):
                     schema=dump_many_schema,
                     instance=leagues.items,
                     params={
-                        'expand': data['expand']
+                        'include': data['include']
                     }
                 )
             }
@@ -132,8 +132,8 @@ class UserMembersLeaguesListAPI(Base):
     @marshal_with(DataResponse.marshallable())
     def get(self, user_uuid):
         data = self.clean(schema=fetch_member_leagues_schema, instance=request.args)
-        leagues = self.league.find_by_participant(filters={'user_uuid': user_uuid},
-                                                  paginate={'page': data['page'], 'per_page': data['per_page']})
+        leagues = self.league.find_by_participant(filters={'user_uuid': user_uuid}, include=data['include'], paginate=
+        {'page': data['page'], 'per_page': data['per_page']})
         return DataResponse(
             data={
                 '_metadata': self.prepare_metadata(
@@ -145,7 +145,7 @@ class UserMembersLeaguesListAPI(Base):
                     schema=dump_many_schema,
                     instance=leagues.items,
                     params={
-                        'expand': data['expand']
+                        'include': data['include']
                     }
                 )
             }
@@ -161,7 +161,7 @@ class MyMembersLeaguesListAPI(Base):
     @marshal_with(DataResponse.marshallable())
     def get(self, me):
         data = self.clean(schema=fetch_member_leagues_schema, instance=request.args)
-        leagues = self.league.find_by_participant(filters={'user_uuid': me}, paginate=
+        leagues = self.league.find_by_participant(filters={'user_uuid': me}, include=data['include'], paginate=
         {'page': data['page'], 'per_page': data['per_page']})
         return DataResponse(
             data={
@@ -174,7 +174,7 @@ class MyMembersLeaguesListAPI(Base):
                     schema=dump_many_schema,
                     instance=leagues.items,
                     params={
-                        'expand': data['expand']
+                        'include': data['include']
                     }
                 )
             }

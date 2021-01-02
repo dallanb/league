@@ -24,9 +24,10 @@ def check_user(f):
 def assign_user(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        consumer_id = request.headers.get('X-Consumer-Custom-ID', None)
-        uuid = Cleaner.is_uuid(consumer_id)
-        kwargs['me'] = uuid
+        if kwargs['user_uuid'] == 'me':
+            consumer_id = request.headers.get('X-Consumer-Custom-ID', None)
+            user_uuid = Cleaner.is_uuid(consumer_id)
+            kwargs['user_uuid'] = user_uuid
         return f(*args, **kwargs)
 
     wrap.__doc__ = f.__doc__

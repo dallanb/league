@@ -11,6 +11,7 @@ class DumpMemberSchema(Schema):
     ctime = fields.Integer()
     mtime = fields.Integer()
     user_uuid = fields.UUID()
+    league_uuid = fields.UUID()
 
     def get_attribute(self, obj, attr, default):
         return getattr(obj, attr, default)

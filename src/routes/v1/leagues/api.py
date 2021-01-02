@@ -3,7 +3,7 @@ from flask_restful import marshal_with
 
 from .schema import *
 from ..base import Base
-from ....common.auth import check_user
+from ....common.auth import check_user, assign_user
 from ....common.response import DataResponse
 from ....services import LeagueService, MemberService
 
@@ -91,6 +91,38 @@ class LeaguesListAPI(Base):
                 'leagues': self.dump(
                     schema=dump_schema,
                     instance=league
+                )
+            }
+        )
+
+
+class MemberUserLeaguesListAPI(Base):
+    def __init__(self):
+        Base.__init__(self)
+        self.league = LeagueService()
+
+    @marshal_with(DataResponse.marshallable())
+    @assign_user
+    def get(self, user_uuid):
+        data = self.clean(schema=fetch_member_user_leagues_schema, instance={**request.args,
+                                                                      'user_uuid': user_uuid})  # not cleaning user_uuid at base request level so make sure it is cleaned here
+        leagues = self.league.find_by_participant(filters={'user_uuid': data['user_uuid']}, include=data['include'],
+                                                  paginate=
+                                                  {'page': data['page'], 'per_page': data['per_page']})
+        return DataResponse(
+            data={
+                '_metadata': self.prepare_metadata(
+                    total_count=leagues.total,
+                    page_count=len(leagues.items),
+                    page=data['page'],
+                    per_page=data['per_page']),
+                'leagues': self.dump(
+                    schema=dump_many_schema,
+                    instance=leagues.items,
+                    params={
+                        'include': data['include'],
+                        'expand': data['expand']
+                    }
                 )
             }
         )

@@ -3,7 +3,7 @@ from flask_restful import marshal_with
 
 from .schema import *
 from ..base import Base
-from ....common.auth import check_user, assign_user
+from ....common.auth import check_user
 from ....common.response import DataResponse
 from ....services import LeagueService, MemberService
 
@@ -82,10 +82,10 @@ class LeaguesListAPI(Base):
 
         members = data.pop('members')
         if members:
-            # str_members = [str(member) for member in members]
-            for user_uuid in members:
-                status = 'active' if g.user == user_uuid else 'pending'
-                self.member.create(user_uuid=user_uuid, status=status, league=league)
+            str_members = [str(participant) for participant in members]
+            self.participant.fetch_member_batch(uuids=str_members)
+            for member_uuid in members:
+                self.member.create(member_uuid=member_uuid, league=league)
         return DataResponse(
             data={
                 'leagues': self.dump(
@@ -105,63 +105,6 @@ class MembersLeaguesListAPI(Base):
     def get(self, uuid):
         data = self.clean(schema=fetch_member_leagues_schema, instance=request.args)
         leagues = self.league.find_by_participant(filters={'uuid': uuid}, include=data['include'], paginate=
-        {'page': data['page'], 'per_page': data['per_page']})
-        return DataResponse(
-            data={
-                '_metadata': self.prepare_metadata(
-                    total_count=leagues.total,
-                    page_count=len(leagues.items),
-                    page=data['page'],
-                    per_page=data['per_page']),
-                'leagues': self.dump(
-                    schema=dump_many_schema,
-                    instance=leagues.items,
-                    params={
-                        'include': data['include']
-                    }
-                )
-            }
-        )
-
-
-class UserMembersLeaguesListAPI(Base):
-    def __init__(self):
-        Base.__init__(self)
-        self.league = LeagueService()
-
-    @marshal_with(DataResponse.marshallable())
-    def get(self, user_uuid):
-        data = self.clean(schema=fetch_member_leagues_schema, instance=request.args)
-        leagues = self.league.find_by_participant(filters={'user_uuid': user_uuid}, include=data['include'], paginate=
-        {'page': data['page'], 'per_page': data['per_page']})
-        return DataResponse(
-            data={
-                '_metadata': self.prepare_metadata(
-                    total_count=leagues.total,
-                    page_count=len(leagues.items),
-                    page=data['page'],
-                    per_page=data['per_page']),
-                'leagues': self.dump(
-                    schema=dump_many_schema,
-                    instance=leagues.items,
-                    params={
-                        'include': data['include']
-                    }
-                )
-            }
-        )
-
-
-class MyMembersLeaguesListAPI(Base):
-    def __init__(self):
-        Base.__init__(self)
-        self.league = LeagueService()
-
-    @assign_user
-    @marshal_with(DataResponse.marshallable())
-    def get(self, me):
-        data = self.clean(schema=fetch_member_leagues_schema, instance=request.args)
-        leagues = self.league.find_by_participant(filters={'user_uuid': me}, include=data['include'], paginate=
         {'page': data['page'], 'per_page': data['per_page']})
         return DataResponse(
             data={

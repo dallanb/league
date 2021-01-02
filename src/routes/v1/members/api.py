@@ -30,19 +30,6 @@ class MembersAPI(Base):
             }
         )
 
-    @marshal_with(DataResponse.marshallable())
-    def put(self, uuid):
-        data = self.clean(schema=update_schema, instance=request.get_json())
-        member = self.member.update(uuid=uuid, **data)
-        return DataResponse(
-            data={
-                'members': self.dump(
-                    schema=dump_schema,
-                    instance=member
-                )
-            }
-        )
-
 
 class MembersListAPI(Base):
     def __init__(self):
@@ -77,7 +64,7 @@ class MembersListAPI(Base):
         leagues = self.league.find(uuid=uuid)
         if not leagues.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
-        member = self.member.create(status='pending', user_uuid=data['user_uuid'],
+        member = self.member.create(status='pending', member_uuid=data['member_uuid'],
                                     league=leagues.items[0])
         return DataResponse(
             data={

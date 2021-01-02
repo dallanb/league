@@ -4,6 +4,7 @@ from http import HTTPStatus
 from .base import Base
 from ..decorators import member_notification
 from ..models import Member as MemberModel
+from ..external import Member as MemberExternal
 
 
 class Member(Base):
@@ -31,3 +32,25 @@ class Member(Base):
         # if member status is being updated we will trigger a notification
         member = self.assign_attr(instance=instance, attr=kwargs)
         return self.save(instance=member)
+
+    def fetch_owner(self, user_uuid, league_uuid):
+        members = self.fetch_members(user_uuid=user_uuid, league_uuid=league_uuid)
+        if not len(members):
+            self.error(code=HTTPStatus.BAD_REQUEST)
+        return members[0]
+
+    def fetch_members(self, **kwargs):
+        # add caching to this api call
+        res = MemberExternal().fetch_members(params={**kwargs})
+        members = res['data']['members']
+        return members
+
+    # possibly turn this into a decorator (the caching part)
+    def fetch_member(self, uuid):
+        hit = self.cache.get(uuid)
+        if hit:
+            return hit
+        res = MemberExternal().fetch_member(uuid=uuid)
+        member = res['data']['members']
+        self.cache.set(uuid, member, 3600)
+        return member

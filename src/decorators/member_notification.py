@@ -11,13 +11,10 @@ class member_notification:
         @wraps(f)
         def wrap(*args, **kwargs):
             self.service = args[0]
-            prev_instance = {**kwargs.get('instance').__dict__} if kwargs.get('instance') else None
             new_instance = f(*args, **kwargs)
 
             if self.operation == 'create':
                 self.create(new_instance=new_instance)
-            if self.operation == 'update':
-                self.update(prev_instance=prev_instance, new_instance=new_instance, args=kwargs)
 
             return new_instance
 
@@ -35,12 +32,13 @@ class member_notification:
 
     def create(self, new_instance):
         key = 'member_created'
-        value = {'uuid': str(new_instance.uuid), 'user_uuid': str(new_instance.user_uuid)}
+        member = self.service.fetch_member(user_uuid=str(new_instance.user_uuid))
+        value = {
+            'uuid': str(new_instance.uuid),
+            'user_uuid': str(member['user_uuid']),
+            'league_uuid': str(new_instance.league_uuid),
+            'email': member['email'],
+            'username': member['username'],
+            'display_name': member['display_name']
+        }
         self.service.notify(topic=self.topic, value=value, key=key, )
-
-    def update(self, prev_instance, new_instance, args):
-        if prev_instance and prev_instance.get('status') and prev_instance['status'].name != new_instance.status.name:
-            key = f'member_{new_instance.status.name}'
-            value = {'uuid': str(new_instance.uuid), 'user_uuid': str(new_instance.user_uuid),
-                     'message': None}
-            self.service.notify(topic=self.topic, value=value, key=key)

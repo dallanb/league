@@ -64,8 +64,8 @@ class MembersListAPI(Base):
         leagues = self.league.find(uuid=uuid)
         if not leagues.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
-        member = self.member.create(status='pending', member_uuid=data['member_uuid'],
-                                    league=leagues.items[0])
+        self.member.fetch_member(user_uuid=data['user_uuid'])
+        member = self.member.create(user_uuid=data['user_uuid'], league=leagues.items[0])
         return DataResponse(
             data={
                 'members': self.dump(

@@ -82,10 +82,10 @@ class LeaguesListAPI(Base):
 
         members = data.pop('members')
         if members:
-            str_members = [str(participant) for participant in members]
-            self.participant.fetch_member_batch(uuids=str_members)
-            for member_uuid in members:
-                self.member.create(member_uuid=member_uuid, league=league)
+            str_members = [str(member) for member in members]
+            members_batch = self.member.fetch_member_batch(uuids=str_members)
+            for member in members_batch:
+                self.member.create(user_uuid=member.get('user_uuid', ''), league=league)
         return DataResponse(
             data={
                 'leagues': self.dump(

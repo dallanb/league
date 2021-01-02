@@ -1,10 +1,11 @@
+import concurrent.futures
 import logging
 from http import HTTPStatus
 
 from .base import Base
 from ..decorators import member_notification
-from ..models import Member as MemberModel
 from ..external import Member as MemberExternal
+from ..models import Member as MemberModel
 
 
 class Member(Base):
@@ -33,24 +34,16 @@ class Member(Base):
         member = self.assign_attr(instance=instance, attr=kwargs)
         return self.save(instance=member)
 
-    def fetch_owner(self, user_uuid, league_uuid):
-        members = self.fetch_members(user_uuid=user_uuid, league_uuid=league_uuid)
-        if not len(members):
-            self.error(code=HTTPStatus.BAD_REQUEST)
-        return members[0]
-
-    def fetch_members(self, **kwargs):
-        # add caching to this api call
-        res = MemberExternal().fetch_members(params={**kwargs})
-        members = res['data']['members']
-        return members
-
-    # possibly turn this into a decorator (the caching part)
-    def fetch_member(self, uuid):
-        hit = self.cache.get(uuid)
+    def fetch_member(self, user_uuid):
+        hit = self.cache.get(user_uuid)
         if hit:
             return hit
-        res = MemberExternal().fetch_member(uuid=uuid)
-        member = res['data']['members']
-        self.cache.set(uuid, member, 3600)
+        res = MemberExternal().fetch_members(params={'user_uuid': user_uuid, 'league_uuid': None})
+        member = res['data']['members'][0]
+        self.cache.set(user_uuid, member, 3600)
         return member
+
+    def fetch_member_batch(self, uuids):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            members = executor.map(self.fetch_member, uuids)
+        return members

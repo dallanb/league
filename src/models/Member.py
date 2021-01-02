@@ -5,7 +5,7 @@ from .. import db
 
 
 class Member(db.Model, BaseMixin):
-    member_uuid = db.Column(UUIDType(binary=False), nullable=False)
+    user_uuid = db.Column(UUIDType(binary=False), nullable=False)
 
     # FK
     league_uuid = db.Column(UUIDType(binary=False), db.ForeignKey('league.uuid'), nullable=False)

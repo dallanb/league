@@ -68,6 +68,18 @@ services:
       retries: 20
     networks:
       - app-net
+  redis-commander:
+    container_name: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: unless-stopped
+    ports:
+      - 8081:8081
+    env_file:
+      - ${HUNCHO_DIR}/env/dev/.env.league-redis-commander
+    depends_on:
+      - league_cache
+    networks:
+      - app-net
 networks:
   app-net:
     driver: bridge

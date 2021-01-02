@@ -38,8 +38,8 @@ class Member(Base):
         hit = self.cache.get(user_uuid)
         if hit:
             return hit
-        res = MemberExternal().fetch_members(params={'user_uuid': user_uuid, 'league_uuid': None})
-        member = res['data']['members'][0]
+        res = MemberExternal().fetch_member_user(uuid=user_uuid, params={'league_uuid': None})
+        member = res['data']['members']
         self.cache.set(user_uuid, member, 3600)
         return member
 

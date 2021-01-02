@@ -12,6 +12,11 @@ class Member(Base):
         res = self.get(url=url)
         return res.json()
 
+    def fetch_member_user(self, uuid, params=None):
+        url = f'{self.base_url}/members/user/{uuid}'
+        res = self.get(url=url, params=params)
+        return res.json()
+
     def fetch_members(self, params=None):
         url = f'{self.base_url}/members'
         res = self.get(url=url, params=params)

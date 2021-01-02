@@ -39,6 +39,7 @@ class member_notification:
             'league_uuid': str(new_instance.league_uuid),
             'email': member['email'],
             'username': member['username'],
-            'display_name': member['display_name']
+            'display_name': member['display_name'],
+            'country': member['address']['country']
         }
         self.service.notify(topic=self.topic, value=value, key=key, )

@@ -40,6 +40,6 @@ class member_notification:
             'email': member['email'],
             'username': member['username'],
             'display_name': member['display_name'],
-            'country': member['address']['country']
+            'country': member['country']
         }
         self.service.notify(topic=self.topic, value=value, key=key, )

@@ -10,10 +10,7 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite://")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv("SECRET_KEY")
-    KONG_URL = os.getenv("KONG_URL")
-    MAILER_URL = os.getenv("MAILER_URL")
-    ACCOUNT_URL = os.getenv("ACCOUNT_URL")
-    COURSE_URL = os.getenv("COURSE_URL")
+    MEMBER_URL = os.getenv("MEMBER_URL")
     KAFKA_URL = os.getenv("KAFKA_URL")
     KAFKA_TOPICS = os.getenv("KAFKA_TOPICS").split(",")
     S3_ACCESS_KEY = os.getenv("S3_ACCESS_KEY")

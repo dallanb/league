@@ -3,7 +3,7 @@ import os
 from flask.cli import FlaskGroup
 
 from bin import init_status
-from src import app, db, common, MemberStatus, LeagueStatus
+from src import app, db, common, LeagueStatus
 
 cli = FlaskGroup(app)
 
@@ -54,7 +54,6 @@ def clear_cache():
 
 def load_statuses():
     init_status(model=LeagueStatus, status_enums=common.LeagueStatusEnum)
-    init_status(model=MemberStatus, status_enums=common.MemberStatusEnum)
     return
 
 

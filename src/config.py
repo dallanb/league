@@ -8,11 +8,16 @@ class Config(object):
     PROPAGATE_EXCEPTIONS = os.getenv("PROPAGATE_EXCEPTIONS")
     TESTING = os.getenv("TESTING", False)
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite://")
-    SQLALCHEMY_TRACK_MODIFICATIONS = True  # Update to true for search
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv("SECRET_KEY")
-    KONG_URL = os.getenv("KONG_URL")
+    MEMBER_URL = os.getenv("MEMBER_URL")
     KAFKA_URL = os.getenv("KAFKA_URL")
     KAFKA_TOPICS = os.getenv("KAFKA_TOPICS").split(",")
+    S3_ACCESS_KEY = os.getenv("S3_ACCESS_KEY")
+    S3_SECRET_KEY = os.getenv("S3_SECRET_KEY")
+    S3_BUCKET = os.getenv("S3_BUCKET")
+    S3_FILEPATH = os.getenv("S3_FILEPATH")
+    ALLOWED_EXTENSIONS = os.getenv("ALLOWED_EXTENSIONS").split(',')
     REDIS_CONFIG = {
         'CACHE_TYPE': 'redis',
         'CACHE_REDIS_HOST': os.getenv("CACHE_HOST"),

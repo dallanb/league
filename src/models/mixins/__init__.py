@@ -1,2 +1,2 @@
 from .BaseMixin import BaseMixin
-from .StatusMixin import StatusMixin
+from .EnumMixin import EnumMixin

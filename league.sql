@@ -442,6 +442,7 @@ ALTER TABLE public.member OWNER TO league;
 
 COPY public.avatar (uuid, ctime, mtime, s3_filename) FROM stdin;
 55d3e2d9-ed57-4aa6-a8bc-0374c1391989	1609642309540	\N	a0c8dd0e-2119-48c0-8527-cffa36385241.jpeg
+1df34ca9-dfcf-43c6-9b7e-47fb3ca10c2d	1609702292439	\N	19dec7a8-52c0-4f48-8ed3-ce478d052d11.jpeg
 \.
 
 
@@ -451,6 +452,7 @@ COPY public.avatar (uuid, ctime, mtime, s3_filename) FROM stdin;
 
 COPY public.league (uuid, ctime, mtime, owner_uuid, name, search_vector, status, avatar_uuid) FROM stdin;
 a0c8dd0e-2119-48c0-8527-cffa36385241	1609642307303	1609642309568	4519d094-2235-48d9-be8c-e73e453c76f0	Duke Golf Club	'club':3 'duke':1 'golf':2	active	55d3e2d9-ed57-4aa6-a8bc-0374c1391989
+19dec7a8-52c0-4f48-8ed3-ce478d052d11	1609702289588	1609702292521	4519d094-2235-48d9-be8c-e73e453c76f0	Galactic Golf Club	'club':3 'galact':1 'golf':2	active	1df34ca9-dfcf-43c6-9b7e-47fb3ca10c2d
 \.
 
 
@@ -470,6 +472,9 @@ COPY public.league_status (ctime, mtime, name) FROM stdin;
 
 COPY public.member (uuid, ctime, mtime, user_uuid, league_uuid) FROM stdin;
 167b0075-bb55-459f-9655-f474e680e229	1609642307590	\N	4519d094-2235-48d9-be8c-e73e453c76f0	a0c8dd0e-2119-48c0-8527-cffa36385241
+12ae8bf2-0340-482c-84fa-42f2dda67c4c	1609701454485	\N	ea903223-00a7-479e-8604-e29c722e7595	a0c8dd0e-2119-48c0-8527-cffa36385241
+6020f282-432c-4fc1-bdcf-c85105dce89a	1609702289815	\N	4519d094-2235-48d9-be8c-e73e453c76f0	19dec7a8-52c0-4f48-8ed3-ce478d052d11
+60293042-ee0b-4500-afb0-ce2b34209b82	1609702319356	\N	ea903223-00a7-479e-8604-e29c722e7595	19dec7a8-52c0-4f48-8ed3-ce478d052d11
 \.
 
 

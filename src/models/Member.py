@@ -11,7 +11,7 @@ class Member(db.Model, BaseMixin):
     league_uuid = db.Column(UUIDType(binary=False), db.ForeignKey('league.uuid'), nullable=False)
 
     # Relationship
-    league = db.relationship("League", back_populates="members", lazy="noload")
+    league = db.relationship("League", back_populates="members")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

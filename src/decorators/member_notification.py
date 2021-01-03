@@ -1,3 +1,4 @@
+import logging
 from functools import wraps
 
 
@@ -33,6 +34,8 @@ class member_notification:
     def create(self, new_instance):
         key = 'member_created'
         member = self.service.fetch_member(user_uuid=str(new_instance.user_uuid))
+        is_owner = new_instance.league.owner_uuid == new_instance.user_uuid
+
         value = {
             'uuid': str(new_instance.uuid),
             'user_uuid': str(member['user_uuid']),
@@ -40,6 +43,7 @@ class member_notification:
             'email': member['email'],
             'username': member['username'],
             'display_name': member['display_name'],
-            'country': member['country']
+            'country': member['country'],
+            'is_owner': is_owner
         }
         self.service.notify(topic=self.topic, value=value, key=key, )

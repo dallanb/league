@@ -64,7 +64,7 @@ class MembersListAPI(Base):
         leagues = self.league.find(uuid=uuid)
         if not leagues.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
-        self.member.fetch_member(user_uuid=data['user_uuid'])
+        self.member.fetch_member(user_uuid=str(data['user_uuid']))
         member = self.member.create(user_uuid=data['user_uuid'], league=leagues.items[0])
         return DataResponse(
             data={

@@ -79,7 +79,7 @@ class MembersListAPI(Base):
             existing_member = self.member.fetch_member(user_uuid=str(data['user_uuid']))
             status = 'pending'
 
-        member = self.member.create(user_uuid=data['user_uuid'], league=leagues.items[0],
+        member = self.member.create(user_uuid=data['user_uuid'], email=data['email'], league=leagues.items[0],
                                     status=status)
         _ = self.member_materialized.create(uuid=member.uuid,
                                             display_name=existing_member.get('display_name'),

@@ -1,5 +1,7 @@
 from functools import wraps
 
+from src.common import MemberStatusEnum
+
 
 class member_notification:
     def __init__(self, operation):
@@ -40,8 +42,7 @@ class member_notification:
             'user_uuid': str(new_instance.user_uuid) if new_instance.user_uuid else None,
             'league_uuid': str(new_instance.league_uuid),
             'email': new_instance.email,
-            'is_owner': new_instance.league.owner_uuid == new_instance.user_uuid,
-            'status': new_instance.status.name,
+            'owner_uuid': str(new_instance.league.owner_uuid),
             'message': self.generate_message(key=f'member_{new_instance.status.name}', league=new_instance.league)
         }
         self.service.notify(topic=self.topic, value=value, key=key)
@@ -57,7 +58,7 @@ class member_notification:
                 'user_uuid': str(new_instance.user_uuid),
                 'league_uuid': str(new_instance.league_uuid),
                 'email': new_instance.email,
-                'is_owner': new_instance.league.owner_uuid == new_instance.user_uuid,
+                'owner_uuid': str(new_instance.league.owner_uuid),
                 'message': self.generate_message(key=key, member=member, league=new_instance.league)
             }
             self.service.notify(topic=self.topic, value=value, key=key)
@@ -69,7 +70,7 @@ class member_notification:
         elif key == 'member_active':
             league = kwargs.get('league')
             member = kwargs.get('member')
-            return f"{member['display_name']} accepted invite to {league.name}"
+            return f"{member['display_name']} accepted invite to {league.name}"  # TODO: problem here with sending message to league owner
         elif key == 'member_inactive':
             league = kwargs.get('league')
             member = kwargs.get('member')

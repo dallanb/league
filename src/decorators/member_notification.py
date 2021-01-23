@@ -43,6 +43,7 @@ class member_notification:
             'owner_uuid': str(new_instance.league.owner_uuid),
             'message': ''
         }
+        # send non empty message if this isnt the owner
         if new_instance.user_uuid != new_instance.league.owner_uuid:
             value['message'] = self.generate_message(key=f'member_{new_instance.status.name}',
                                                      league=new_instance.league)

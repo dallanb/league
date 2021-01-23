@@ -82,10 +82,10 @@ class MembersListAPI(Base):
         member = self.member.create(user_uuid=data['user_uuid'], email=data['email'], league=leagues.items[0],
                                     status=status)
         _ = self.member_materialized.create(uuid=member.uuid,
-                                            display_name=existing_member.get('display_name'),
+                                            display_name=existing_member.get('display_name', None),
                                             email=data['email'],
-                                            user=existing_member.get('user_uuid'),
-                                            member=existing_member.get('uuid'), status=status,
+                                            user=existing_member.get('user_uuid', None),
+                                            member=existing_member.get('uuid', None), status=status,
                                             league=leagues.items[0].uuid)
         return DataResponse(
             data={

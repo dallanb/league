@@ -1,7 +1,5 @@
 from functools import wraps
 
-from src.common import MemberStatusEnum
-
 
 class member_notification:
     def __init__(self, operation):
@@ -36,18 +34,17 @@ class member_notification:
         self._service = service
 
     def create(self, new_instance):
-        if new_instance.status == MemberStatusEnum['pending'] or new_instance.status == MemberStatusEnum['invited']:
-            key = f'member_{new_instance.status.name}'
-            value = {
-                'uuid': str(new_instance.uuid),
-                'user_uuid': str(new_instance.user_uuid) if new_instance.user_uuid else None,
-                'league_uuid': str(new_instance.league_uuid),
-                'email': new_instance.email,
-                'is_owner': new_instance.league.owner_uuid == new_instance.user_uuid,
-                'message': self.generate_message(key=key, league=new_instance.league)
-            }
-
-            self.service.notify(topic=self.topic, value=value, key=key)
+        key = f'member_created'
+        value = {
+            'uuid': str(new_instance.uuid),
+            'user_uuid': str(new_instance.user_uuid) if new_instance.user_uuid else None,
+            'league_uuid': str(new_instance.league_uuid),
+            'email': new_instance.email,
+            'is_owner': new_instance.league.owner_uuid == new_instance.user_uuid,
+            'status': new_instance.status.name,
+            'message': self.generate_message(key=f'member_{new_instance.status.name}', league=new_instance.league)
+        }
+        self.service.notify(topic=self.topic, value=value, key=key)
 
     def update(self, prev_instance, new_instance, args):
         if prev_instance and prev_instance.get('status') and prev_instance['status'].name != new_instance.status.name:

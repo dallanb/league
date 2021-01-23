@@ -16,15 +16,20 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+ALTER TABLE ONLY public.member DROP CONSTRAINT member_status_fkey;
 ALTER TABLE ONLY public.member DROP CONSTRAINT member_league_uuid_fkey;
 ALTER TABLE ONLY public.league DROP CONSTRAINT league_status_fkey;
 ALTER TABLE ONLY public.league DROP CONSTRAINT league_avatar_uuid_fkey;
 DROP TRIGGER league_search_vector_trigger ON public.league;
 DROP INDEX public.ix_league_search_vector;
+ALTER TABLE ONLY public.member_status DROP CONSTRAINT member_status_pkey;
 ALTER TABLE ONLY public.member DROP CONSTRAINT member_pkey;
+ALTER TABLE ONLY public.member_materialized DROP CONSTRAINT member_materialized_pkey;
 ALTER TABLE ONLY public.league_status DROP CONSTRAINT league_status_pkey;
 ALTER TABLE ONLY public.league DROP CONSTRAINT league_pkey;
 ALTER TABLE ONLY public.avatar DROP CONSTRAINT avatar_pkey;
+DROP TABLE public.member_status;
+DROP TABLE public.member_materialized;
 DROP TABLE public.member;
 DROP TABLE public.league_status;
 DROP TABLE public.league;
@@ -39,6 +44,7 @@ DROP FUNCTION public.tsq_parse(search_query text);
 DROP FUNCTION public.tsq_append_current_token(state public.tsq_state);
 DROP FUNCTION public.array_nremove(anyarray, anyelement, integer);
 DROP TYPE public.tsq_state;
+DROP TYPE public.memberstatusenum;
 DROP TYPE public.leaguestatusenum;
 DROP EXTENSION plpgsql;
 DROP SCHEMA public;
@@ -83,6 +89,20 @@ CREATE TYPE public.leaguestatusenum AS ENUM (
 
 
 ALTER TYPE public.leaguestatusenum OWNER TO league;
+
+--
+-- Name: memberstatusenum; Type: TYPE; Schema: public; Owner: league
+--
+
+CREATE TYPE public.memberstatusenum AS ENUM (
+    'invited',
+    'pending',
+    'active',
+    'inactive'
+);
+
+
+ALTER TYPE public.memberstatusenum OWNER TO league;
 
 --
 -- Name: tsq_state; Type: TYPE; Schema: public; Owner: league
@@ -429,7 +449,9 @@ CREATE TABLE public.member (
     uuid uuid NOT NULL,
     ctime bigint,
     mtime bigint,
-    user_uuid uuid NOT NULL,
+    email character varying(255) NOT NULL,
+    user_uuid uuid,
+    status public.memberstatusenum NOT NULL,
     league_uuid uuid NOT NULL
 );
 
@@ -437,12 +459,42 @@ CREATE TABLE public.member (
 ALTER TABLE public.member OWNER TO league;
 
 --
+-- Name: member_materialized; Type: TABLE; Schema: public; Owner: league
+--
+
+CREATE TABLE public.member_materialized (
+    uuid uuid NOT NULL,
+    ctime bigint,
+    mtime bigint,
+    display_name character varying NOT NULL,
+    email character varying(255) NOT NULL,
+    "user" uuid,
+    member uuid,
+    status character varying NOT NULL,
+    league uuid
+);
+
+
+ALTER TABLE public.member_materialized OWNER TO league;
+
+--
+-- Name: member_status; Type: TABLE; Schema: public; Owner: league
+--
+
+CREATE TABLE public.member_status (
+    ctime bigint,
+    mtime bigint,
+    name public.memberstatusenum NOT NULL
+);
+
+
+ALTER TABLE public.member_status OWNER TO league;
+
+--
 -- Data for Name: avatar; Type: TABLE DATA; Schema: public; Owner: league
 --
 
 COPY public.avatar (uuid, ctime, mtime, s3_filename) FROM stdin;
-55d3e2d9-ed57-4aa6-a8bc-0374c1391989	1609642309540	\N	a0c8dd0e-2119-48c0-8527-cffa36385241.jpeg
-1df34ca9-dfcf-43c6-9b7e-47fb3ca10c2d	1609702292439	\N	19dec7a8-52c0-4f48-8ed3-ce478d052d11.jpeg
 \.
 
 
@@ -451,8 +503,7 @@ COPY public.avatar (uuid, ctime, mtime, s3_filename) FROM stdin;
 --
 
 COPY public.league (uuid, ctime, mtime, owner_uuid, name, search_vector, status, avatar_uuid) FROM stdin;
-a0c8dd0e-2119-48c0-8527-cffa36385241	1609642307303	1609642309568	4519d094-2235-48d9-be8c-e73e453c76f0	Duke Golf Club	'club':3 'duke':1 'golf':2	active	55d3e2d9-ed57-4aa6-a8bc-0374c1391989
-19dec7a8-52c0-4f48-8ed3-ce478d052d11	1609702289588	1609702292521	4519d094-2235-48d9-be8c-e73e453c76f0	Galactic Golf Club	'club':3 'galact':1 'golf':2	active	1df34ca9-dfcf-43c6-9b7e-47fb3ca10c2d
+aa654f54-8088-4fe4-8536-1e4155c82388	1611441726007	\N	bfeb0732-c3c0-49ad-8c50-74eb75e36994	SFU Golf Club	'club':3 'golf':2 'sfu':1	active	\N
 \.
 
 
@@ -461,8 +512,8 @@ a0c8dd0e-2119-48c0-8527-cffa36385241	1609642307303	1609642309568	4519d094-2235-4
 --
 
 COPY public.league_status (ctime, mtime, name) FROM stdin;
-1609642194473	\N	active
-1609642194473	\N	inactive
+1611440880470	\N	active
+1611440880470	\N	inactive
 \.
 
 
@@ -470,11 +521,31 @@ COPY public.league_status (ctime, mtime, name) FROM stdin;
 -- Data for Name: member; Type: TABLE DATA; Schema: public; Owner: league
 --
 
-COPY public.member (uuid, ctime, mtime, user_uuid, league_uuid) FROM stdin;
-167b0075-bb55-459f-9655-f474e680e229	1609642307590	\N	4519d094-2235-48d9-be8c-e73e453c76f0	a0c8dd0e-2119-48c0-8527-cffa36385241
-12ae8bf2-0340-482c-84fa-42f2dda67c4c	1609701454485	\N	ea903223-00a7-479e-8604-e29c722e7595	a0c8dd0e-2119-48c0-8527-cffa36385241
-6020f282-432c-4fc1-bdcf-c85105dce89a	1609702289815	\N	4519d094-2235-48d9-be8c-e73e453c76f0	19dec7a8-52c0-4f48-8ed3-ce478d052d11
-60293042-ee0b-4500-afb0-ce2b34209b82	1609702319356	\N	ea903223-00a7-479e-8604-e29c722e7595	19dec7a8-52c0-4f48-8ed3-ce478d052d11
+COPY public.member (uuid, ctime, mtime, email, user_uuid, status, league_uuid) FROM stdin;
+d80d4801-49d4-44ab-bfbc-a88953ce196f	1611441726054	\N	dallan.bhatti@techtapir.com	bfeb0732-c3c0-49ad-8c50-74eb75e36994	active	aa654f54-8088-4fe4-8536-1e4155c82388
+3985d4b1-d7ca-416f-8569-64081725e81a	1611442066849	\N	dallabhatti@techtapir.com	08413929-34c4-45ca-93a3-1f8e9fac9626	pending	aa654f54-8088-4fe4-8536-1e4155c82388
+\.
+
+
+--
+-- Data for Name: member_materialized; Type: TABLE DATA; Schema: public; Owner: league
+--
+
+COPY public.member_materialized (uuid, ctime, mtime, display_name, email, "user", member, status, league) FROM stdin;
+d80d4801-49d4-44ab-bfbc-a88953ce196f	1611441726074	\N	Dallan Bhatti	dallan.bhatti@techtapir.com	bfeb0732-c3c0-49ad-8c50-74eb75e36994	68b65892-bca4-4e0f-85c2-f6cc87c755ba	active	aa654f54-8088-4fe4-8536-1e4155c82388
+3985d4b1-d7ca-416f-8569-64081725e81a	1611442066865	\N	Dalla Bhatti	dallabhatti@techtapir.com	08413929-34c4-45ca-93a3-1f8e9fac9626	50d5b97d-44e1-4933-8d4b-42ae396ed230	pending	aa654f54-8088-4fe4-8536-1e4155c82388
+\.
+
+
+--
+-- Data for Name: member_status; Type: TABLE DATA; Schema: public; Owner: league
+--
+
+COPY public.member_status (ctime, mtime, name) FROM stdin;
+1611440880491	\N	invited
+1611440880491	\N	pending
+1611440880491	\N	active
+1611440880491	\N	inactive
 \.
 
 
@@ -503,11 +574,27 @@ ALTER TABLE ONLY public.league_status
 
 
 --
+-- Name: member_materialized member_materialized_pkey; Type: CONSTRAINT; Schema: public; Owner: league
+--
+
+ALTER TABLE ONLY public.member_materialized
+    ADD CONSTRAINT member_materialized_pkey PRIMARY KEY (uuid);
+
+
+--
 -- Name: member member_pkey; Type: CONSTRAINT; Schema: public; Owner: league
 --
 
 ALTER TABLE ONLY public.member
     ADD CONSTRAINT member_pkey PRIMARY KEY (uuid);
+
+
+--
+-- Name: member_status member_status_pkey; Type: CONSTRAINT; Schema: public; Owner: league
+--
+
+ALTER TABLE ONLY public.member_status
+    ADD CONSTRAINT member_status_pkey PRIMARY KEY (name);
 
 
 --
@@ -546,6 +633,14 @@ ALTER TABLE ONLY public.league
 
 ALTER TABLE ONLY public.member
     ADD CONSTRAINT member_league_uuid_fkey FOREIGN KEY (league_uuid) REFERENCES public.league(uuid);
+
+
+--
+-- Name: member member_status_fkey; Type: FK CONSTRAINT; Schema: public; Owner: league
+--
+
+ALTER TABLE ONLY public.member
+    ADD CONSTRAINT member_status_fkey FOREIGN KEY (status) REFERENCES public.member_status(name);
 
 
 --

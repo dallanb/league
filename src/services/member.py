@@ -34,11 +34,15 @@ class Member(Base):
         member = self.assign_attr(instance=instance, attr=kwargs)
         return self.save(instance=member)
 
-    def fetch_member(self, user_uuid):
+    def fetch_members(self, params):
+        res = MemberExternal().fetch_members(params=params)
+        return res['data']['members']
+
+    def fetch_member(self, user_uuid, league_uuid=None):
         hit = self.cache.get(user_uuid)
         if hit:
             return hit
-        res = MemberExternal().fetch_member_user(uuid=user_uuid, params={'league_uuid': None})
+        res = MemberExternal().fetch_member_user(uuid=user_uuid, params={'league_uuid': league_uuid})
         member = res['data']['members']
         self.cache.set(user_uuid, member, 3600)
         return member

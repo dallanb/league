@@ -64,8 +64,21 @@ class MembersListAPI(Base):
         leagues = self.league.find(uuid=uuid)
         if not leagues.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
-        self.member.fetch_member(user_uuid=str(data['user_uuid']))
-        member = self.member.create(user_uuid=data['user_uuid'], league=leagues.items[0])
+
+        # if the user does not include user_uuid in the payload then we are too assume this user is not present in
+        # the system
+        if not data['user_uuid']:
+            members = self.member.fetch_members(params={'email': data['email'], 'league_uuid': None})
+            if len(members):
+                self.throw_error(http_code=self.code.BAD_REQUEST,
+                                 msg='This user already exists, please pass their user_uuid')
+            status = 'invited'
+        else:
+            self.member.fetch_member(user_uuid=str(data['user_uuid']))
+            status = 'pending'
+
+        member = self.member.create(user_uuid=data['user_uuid'], email=data['email'], league=leagues.items[0],
+                                    status=status)
         return DataResponse(
             data={
                 'members': self.dump(

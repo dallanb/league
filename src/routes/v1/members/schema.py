@@ -3,7 +3,7 @@ from webargs import fields
 
 
 class CreateMemberSchema(Schema):
-    user_uuid = fields.UUID(required=False)
+    user_uuid = fields.UUID(required=False, missing=None)
     email = fields.Email(required=True)
 
 

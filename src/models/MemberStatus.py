@@ -1,6 +1,6 @@
-from ..common.enums import MemberStatusEnum
-from .. import db
 from .mixins import EnumMixin
+from .. import db
+from ..common import MemberStatusEnum
 
 
 class MemberStatus(db.Model, EnumMixin):

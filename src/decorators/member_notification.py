@@ -53,7 +53,7 @@ class member_notification:
         if prev_instance and prev_instance.get('status') and prev_instance['status'].name != new_instance.status.name:
             key = f'member_{new_instance.status.name}'
             # since we cannot update to an invited status we know we must have a user_uuid
-            member = self.service.fetch_member(uuid=str(new_instance.user_uuid),
+            member = self.service.fetch_member(user_uuid=str(new_instance.user_uuid),
                                                league_uuid=str(new_instance.league_uuid))
             value = {
                 'uuid': str(new_instance.uuid),

@@ -5,7 +5,7 @@ from .schema import *
 from ..base import Base
 from ....common.auth import check_user, assign_user
 from ....common.response import DataResponse
-from ....services import LeagueService, MemberService
+from ....services import LeagueService, MemberService, MemberMaterializedService
 
 
 class LeaguesAPI(Base):
@@ -51,6 +51,7 @@ class LeaguesListAPI(Base):
         Base.__init__(self)
         self.league = LeagueService()
         self.member = MemberService()
+        self.member_materialized = MemberMaterializedService()
 
     @marshal_with(DataResponse.marshallable())
     def get(self):
@@ -80,12 +81,12 @@ class LeaguesListAPI(Base):
         data = self.clean(schema=create_schema, instance=request.get_json())
         league = self.league.create(status='active', owner_uuid=g.user, name=data['name'])
 
-        # members = data.pop('members')
-        # if members:
-        #     str_members = [str(member) for member in members]
-        #     members_batch = self.member.fetch_member_batch(uuids=str_members)
-        #     for member in members_batch:
-        #         self.member.create(user_uuid=member.get('user_uuid', ''), league=league)
+        external_member = self.member.fetch_member(user_uuid=g.user)
+
+        member = self.member.create(user_uuid=data['user_uuid'], league=league, status='active')
+        _ = self.member_materialized.create(uuid=member.uuid, display_name=external_member['display_name'],
+                                            user=external_member['user_uuid'], email=external_member['email'],
+                                            member=external_member['uuid'], league=league.uuid, status='active')
         return DataResponse(
             data={
                 'leagues': self.dump(
@@ -105,7 +106,7 @@ class MemberUserLeaguesListAPI(Base):
     @assign_user
     def get(self, user_uuid):
         data = self.clean(schema=fetch_member_user_leagues_schema, instance={**request.args,
-                                                                      'user_uuid': user_uuid})  # not cleaning user_uuid at base request level so make sure it is cleaned here
+                                                                             'user_uuid': user_uuid})  # not cleaning user_uuid at base request level so make sure it is cleaned here
         leagues = self.league.find_by_participant(filters={'user_uuid': data['user_uuid']}, include=data['include'],
                                                   paginate=
                                                   {'page': data['page'], 'per_page': data['per_page']})

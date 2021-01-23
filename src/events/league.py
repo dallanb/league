@@ -22,5 +22,5 @@ class League:
             member = self.member_service.fetch_member(user_uuid=data['user_uuid'], league_uuid=data['league_uuid'])
             _ = self.materialized_service.update(uuid=data['uuid'],
                                                  display_name=member['display_name'],
-                                                 user=member['email'], member=member['uuid'],
+                                                 email=member['email'], user=member['user_uuid'], member=member['uuid'],
                                                  status=status)

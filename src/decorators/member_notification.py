@@ -33,6 +33,7 @@ class member_notification:
 
     def create(self, new_instance):
         key = 'member_created'
+        # if new_instance.user_uuid:
         member = self.service.fetch_member(user_uuid=str(new_instance.user_uuid))
         is_owner = new_instance.league.owner_uuid == new_instance.user_uuid
 

@@ -81,7 +81,7 @@ class LeaguesListAPI(Base):
         data = self.clean(schema=create_schema, instance=request.get_json())
         league = self.league.create(status='active', owner_uuid=g.user, name=data['name'])
 
-        external_member = self.member.fetch_member(user_uuid=g.user)
+        external_member = self.member.fetch_member(user_uuid=str(g.user))
 
         member = self.member.create(user_uuid=data['user_uuid'], league=league, status='active')
         _ = self.member_materialized.create(uuid=member.uuid, display_name=external_member['display_name'],

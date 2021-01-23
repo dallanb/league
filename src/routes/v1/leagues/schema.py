@@ -8,7 +8,6 @@ from ....common import LeagueStatusEnum
 
 class CreateLeagueSchema(Schema):
     name = fields.String()
-    # members = fields.List(fields.UUID(), missing=None)
 
 
 class DumpLeagueSchema(Schema):

@@ -15,3 +15,4 @@ class Member:
             members = self.member_service.find(email=data['email'], league_uuid=data['league_uuid'], status='invited')
             if members.total:
                 self.member_service.apply(instance=members.items[0], user_uuid=data['user_uuid'], status='pending')
+        # I need to handle avatar updates in member

@@ -12,4 +12,10 @@ def new_event_listener(event):
             Member().handle_event(key=key, data=data)
         except Exception as ex:
             logging.error(ex)
-            logging.error('Account event err')
+            logging.error('Members event err')
+    elif topic == 'leagues':
+        try:
+            League().handle_event(key=key, data=data)
+        except Exception as ex:
+            logging.error(ex)
+            logging.error('Leagues event err')

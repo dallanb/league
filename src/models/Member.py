@@ -1,4 +1,4 @@
-from sqlalchemy_utils import UUIDType, EmailType
+from sqlalchemy_utils import UUIDType
 
 from .mixins import BaseMixin
 from .. import db
@@ -6,7 +6,6 @@ from ..common import MemberStatusEnum
 
 
 class Member(db.Model, BaseMixin):
-    email = db.Column(EmailType, nullable=False)
     user_uuid = db.Column(UUIDType(binary=False), nullable=True)
 
     # FK

@@ -80,12 +80,12 @@ class LeaguesListAPI(Base):
         data = self.clean(schema=create_schema, instance=request.get_json())
         league = self.league.create(status='active', owner_uuid=g.user, name=data['name'])
 
-        members = data.pop('members')
-        if members:
-            str_members = [str(member) for member in members]
-            members_batch = self.member.fetch_member_batch(uuids=str_members)
-            for member in members_batch:
-                self.member.create(user_uuid=member.get('user_uuid', ''), league=league)
+        # members = data.pop('members')
+        # if members:
+        #     str_members = [str(member) for member in members]
+        #     members_batch = self.member.fetch_member_batch(uuids=str_members)
+        #     for member in members_batch:
+        #         self.member.create(user_uuid=member.get('user_uuid', ''), league=league)
         return DataResponse(
             data={
                 'leagues': self.dump(

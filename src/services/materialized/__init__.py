@@ -1,0 +1,1 @@
+from .member_materialized import MemberMaterialized as MemberMaterializedService

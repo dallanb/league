@@ -37,6 +37,10 @@ class DumpMemberMaterializedSchema(Schema):
     country = fields.String()
 
 
+class UpdateMemberSchema(Schema):
+    status = fields.Str(required=False)
+
+
 class FetchMemberSchema(Schema):
     expand = fields.DelimitedList(fields.String(), required=False, missing=[])
 
@@ -61,6 +65,7 @@ dump_schema = DumpMemberSchema()
 dump_many_schema = DumpMemberSchema(many=True)
 dump_materialized_schema = DumpMemberMaterializedSchema()
 dump_many_materialized_schema = DumpMemberMaterializedSchema(many=True)
+update_schema = UpdateMemberSchema()
 fetch_schema = FetchMemberSchema()
 fetch_all_schema = FetchAllMemberSchema()
 fetch_all_materialized_schema = FetchAllMemberMaterializedSchema()

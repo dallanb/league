@@ -30,6 +30,19 @@ class MembersAPI(Base):
             }
         )
 
+    @marshal_with(DataResponse.marshallable())
+    def put(self, uuid):
+        data = self.clean(schema=update_schema, instance=request.get_json())
+        member = self.member.update(uuid=uuid, **data)
+        return DataResponse(
+            data={
+                'members': self.dump(
+                    schema=dump_schema,
+                    instance=member
+                )
+            }
+        )
+
 
 class MembersListAPI(Base):
     def __init__(self):

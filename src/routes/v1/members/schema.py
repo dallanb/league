@@ -45,6 +45,11 @@ class FetchMemberSchema(Schema):
     expand = fields.DelimitedList(fields.String(), required=False, missing=[])
 
 
+class FetchMaterializedUserSchema(Schema):
+    user_uuid = fields.UUID(required=True)
+    league = fields.UUID(required=False, data_key="league_uuid", missing=None)
+
+
 class FetchAllMemberSchema(Schema):
     page = fields.Int(required=False, missing=1)
     per_page = fields.Int(required=False, missing=10)
@@ -67,5 +72,6 @@ dump_materialized_schema = DumpMemberMaterializedSchema()
 dump_many_materialized_schema = DumpMemberMaterializedSchema(many=True)
 update_schema = UpdateMemberSchema()
 fetch_schema = FetchMemberSchema()
+fetch_materialized_user_schema = FetchMaterializedUserSchema()
 fetch_all_schema = FetchAllMemberSchema()
 fetch_all_materialized_schema = FetchAllMemberMaterializedSchema()

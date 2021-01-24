@@ -1,6 +1,6 @@
 from .v1 import AvatarsAPI
 from .v1 import LeaguesAPI, LeaguesListAPI, MemberUserLeaguesListAPI
-from .v1 import MembersAPI, MembersListAPI, MembersMaterializedAPI, MembersMaterializedListAPI
+from .v1 import MembersAPI, MembersListAPI, MembersMaterializedAPI, MembersMaterializedListAPI, MembersMaterializedUserAPI
 from .v1 import PingAPI
 from .. import api
 
@@ -15,6 +15,7 @@ api.add_resource(MemberUserLeaguesListAPI, '/members/leagues/user/<user_uuid>',
 
 # Members
 api.add_resource(MembersMaterializedAPI, '/members/materialized/<uuid:uuid>', endpoint="member_materialized")
+api.add_resource(MembersMaterializedUserAPI, '/members/materialized/user/<user_uuid>', endpoint="member_user_materialized")
 api.add_resource(MembersMaterializedListAPI, '/members/materialized', endpoint="members_materialized")
 api.add_resource(MembersAPI, '/members/<uuid:uuid>', endpoint="member")
 api.add_resource(MembersListAPI, '/leagues/<uuid:uuid>/members', '/members', endpoint="members")

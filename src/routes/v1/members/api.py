@@ -3,6 +3,7 @@ from flask_restful import marshal_with
 
 from .schema import *
 from ..base import Base
+from ....common.auth import assign_user
 from ....common.response import DataResponse
 from ....services import MemberService, LeagueService, MemberMaterializedService
 
@@ -119,6 +120,28 @@ class MembersMaterializedAPI(Base):
     @marshal_with(DataResponse.marshallable())
     def get(self, uuid):
         members = self.member_materialized.find(uuid=uuid)
+        if not members.total:
+            self.throw_error(http_code=self.code.NOT_FOUND)
+        return DataResponse(
+            data={
+                'members': self.dump(
+                    schema=dump_materialized_schema,
+                    instance=members.items[0],
+                )
+            }
+        )
+
+
+class MembersMaterializedUserAPI(Base):
+    def __init__(self):
+        Base.__init__(self)
+        self.member_materialized = MemberMaterializedService()
+
+    @marshal_with(DataResponse.marshallable())
+    @assign_user
+    def get(self, user_uuid):
+        data = self.clean(schema=fetch_all_schema, instance={**request.args, 'user_uuid': user_uuid})
+        members = self.member_materialized.find(user_uuid=user_uuid, **data)
         if not members.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
         return DataResponse(

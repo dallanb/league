@@ -11,10 +11,13 @@ class member_notification:
         @wraps(f)
         def wrap(*args, **kwargs):
             self.service = args[0]
+            prev_instance = {**kwargs.get('instance').__dict__} if kwargs.get('instance') else None
             new_instance = f(*args, **kwargs)
 
             if self.operation == 'create':
                 self.create(new_instance=new_instance)
+            if self.operation == 'update':
+                self.update(prev_instance=prev_instance, new_instance=new_instance, args=kwargs)
 
             return new_instance
 
@@ -31,15 +34,48 @@ class member_notification:
         self._service = service
 
     def create(self, new_instance):
-        key = 'member_created'
-        member = self.service.fetch_member(user_uuid=str(new_instance.user_uuid))
+        key = f'member_created'
         value = {
             'uuid': str(new_instance.uuid),
-            'user_uuid': str(member['user_uuid']),
+            'user_uuid': str(new_instance.user_uuid) if new_instance.user_uuid else None,
             'league_uuid': str(new_instance.league_uuid),
-            'email': member['email'],
-            'username': member['username'],
-            'display_name': member['display_name'],
-            'country': member['country']
+            'email': new_instance.email,
+            'owner_uuid': str(new_instance.league.owner_uuid),
+            'message': ''
         }
-        self.service.notify(topic=self.topic, value=value, key=key, )
+        # send non empty message if this isnt the owner
+        if new_instance.user_uuid != new_instance.league.owner_uuid:
+            value['message'] = self.generate_message(key=f'member_{new_instance.status.name}',
+                                                     league=new_instance.league)
+        self.service.notify(topic=self.topic, value=value, key=key)
+
+    def update(self, prev_instance, new_instance, args):
+        if prev_instance and prev_instance.get('status') and prev_instance['status'].name != new_instance.status.name:
+            key = f'member_{new_instance.status.name}'
+            # since we cannot update to an invited status we know we must have a user_uuid
+            member = self.service.fetch_member(user_uuid=str(new_instance.user_uuid),
+                                               league_uuid=str(new_instance.league_uuid))
+            value = {
+                'uuid': str(new_instance.uuid),
+                'user_uuid': str(new_instance.user_uuid),
+                'league_uuid': str(new_instance.league_uuid),
+                'email': new_instance.email,
+                'owner_uuid': str(new_instance.league.owner_uuid),
+                'message': self.generate_message(key=key, member=member, league=new_instance.league)
+            }
+            self.service.notify(topic=self.topic, value=value, key=key)
+
+    def generate_message(self, key, **kwargs):
+        if key == 'member_pending':
+            league = kwargs.get('league')
+            return f"You have been invited to join {league.name}"
+        elif key == 'member_active':
+            league = kwargs.get('league')
+            member = kwargs.get('member')
+            return f"{member['display_name']} accepted invite to {league.name}"
+        elif key == 'member_inactive':
+            league = kwargs.get('league')
+            member = kwargs.get('member')
+            return f"{member['display_name']} declined invite to {league.name}"
+        else:
+            return ''

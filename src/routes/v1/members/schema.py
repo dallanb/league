@@ -3,7 +3,8 @@ from webargs import fields
 
 
 class CreateMemberSchema(Schema):
-    user_uuid = fields.UUID()
+    user_uuid = fields.UUID(required=False, missing=None)
+    email = fields.Email(required=True)
 
 
 class DumpMemberSchema(Schema):
@@ -21,8 +22,32 @@ class DumpMemberSchema(Schema):
         return data
 
 
+class DumpMemberMaterializedSchema(Schema):
+    uuid = fields.UUID()
+    ctime = fields.Integer()
+    mtime = fields.Integer()
+    name = fields.String()
+    status = fields.String()
+    avatar = fields.String()
+    league = fields.UUID()
+    display_name = fields.String()
+    email = fields.Email()
+    user = fields.UUID()
+    member = fields.UUID()
+    country = fields.String()
+
+
+class UpdateMemberSchema(Schema):
+    status = fields.Str(required=False)
+
+
 class FetchMemberSchema(Schema):
     expand = fields.DelimitedList(fields.String(), required=False, missing=[])
+
+
+class FetchMaterializedUserSchema(Schema):
+    user = fields.UUID(required=True, data_key="user_uuid")
+    league = fields.UUID(required=False, data_key="league_uuid", missing=None)
 
 
 class FetchAllMemberSchema(Schema):
@@ -32,8 +57,21 @@ class FetchAllMemberSchema(Schema):
     user_uuid = fields.UUID(required=False)
 
 
+class FetchAllMemberMaterializedSchema(Schema):
+    page = fields.Int(required=False, missing=1)
+    per_page = fields.Int(required=False, missing=10)
+    sort_by = fields.String(required=False)
+    league = fields.UUID(required=False, data_key="league_uuid")
+    status = fields.String(required=False)
+
+
 create_schema = CreateMemberSchema()
 dump_schema = DumpMemberSchema()
 dump_many_schema = DumpMemberSchema(many=True)
+dump_materialized_schema = DumpMemberMaterializedSchema()
+dump_many_materialized_schema = DumpMemberMaterializedSchema(many=True)
+update_schema = UpdateMemberSchema()
 fetch_schema = FetchMemberSchema()
+fetch_materialized_user_schema = FetchMaterializedUserSchema()
 fetch_all_schema = FetchAllMemberSchema()
+fetch_all_materialized_schema = FetchAllMemberMaterializedSchema()

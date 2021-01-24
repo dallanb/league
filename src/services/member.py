@@ -34,13 +34,19 @@ class Member(Base):
         member = self.assign_attr(instance=instance, attr=kwargs)
         return self.save(instance=member)
 
-    def fetch_member(self, user_uuid):
-        hit = self.cache.get(user_uuid)
+    def fetch_members(self, params):
+        res = MemberExternal().fetch_members(params=params)
+        self.logger.info(res)
+        return res['data']['members']
+
+    def fetch_member(self, user_uuid, league_uuid=None):
+        cache_key = user_uuid if not league_uuid else f'{user_uuid}_{league_uuid}'
+        hit = self.cache.get(cache_key)
         if hit:
             return hit
-        res = MemberExternal().fetch_member_user(uuid=user_uuid, params={'league_uuid': None})
+        res = MemberExternal().fetch_member_user(uuid=user_uuid, params={'league_uuid': league_uuid})
         member = res['data']['members']
-        self.cache.set(user_uuid, member, 3600)
+        self.cache.set(cache_key, member, 3600)
         return member
 
     def fetch_member_batch(self, uuids):

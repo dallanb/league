@@ -86,6 +86,7 @@ class MembersListAPI(Base):
                                             email=data['email'],
                                             user=existing_member.get('user_uuid', None),
                                             member=existing_member.get('uuid', None), status=status,
+                                            country=existing_member.get('country', None),
                                             league=leagues.items[0].uuid)
         return DataResponse(
             data={

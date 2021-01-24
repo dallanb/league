@@ -23,4 +23,4 @@ class League:
             _ = self.materialized_service.update(uuid=data['uuid'],
                                                  display_name=member['display_name'],
                                                  email=member['email'], user=member['user_uuid'], member=member['uuid'],
-                                                 status=status)
+                                                 country=member['country'], status=status)

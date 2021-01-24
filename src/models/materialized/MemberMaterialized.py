@@ -19,6 +19,7 @@ class MemberMaterialized(db.Model):
     member = db.Column(UUIDType(binary=False), nullable=True)
     status = db.Column(db.String, nullable=False)
     league = db.Column(UUIDType(binary=False), nullable=False)
+    country = db.Column(db.String, nullable=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

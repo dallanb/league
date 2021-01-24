@@ -141,7 +141,7 @@ class MembersMaterializedUserAPI(Base):
     @assign_user
     def get(self, user_uuid):
         data = self.clean(schema=fetch_materialized_user_schema, instance={**request.args, 'user_uuid': user_uuid})
-        members = self.member_materialized.find(user_uuid=user_uuid, **data)
+        members = self.member_materialized.find(**data)
         if not members.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
         return DataResponse(

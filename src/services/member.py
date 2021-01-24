@@ -40,12 +40,13 @@ class Member(Base):
         return res['data']['members']
 
     def fetch_member(self, user_uuid, league_uuid=None):
-        hit = self.cache.get(user_uuid)
+        cache_key = user_uuid if not league_uuid else f'{user_uuid}_{league_uuid}'
+        hit = self.cache.get(cache_key)
         if hit:
             return hit
         res = MemberExternal().fetch_member_user(uuid=user_uuid, params={'league_uuid': league_uuid})
         member = res['data']['members']
-        self.cache.set(user_uuid, member, 3600)
+        self.cache.set(cache_key, member, 3600)
         return member
 
     def fetch_member_batch(self, uuids):

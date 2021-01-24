@@ -63,4 +63,4 @@ dump_materialized_schema = DumpMemberMaterializedSchema()
 dump_many_materialized_schema = DumpMemberMaterializedSchema(many=True)
 fetch_schema = FetchMemberSchema()
 fetch_all_schema = FetchAllMemberSchema()
-fetch_all_materialized_schema = FetchAllMemberMaterializedSchema
+fetch_all_materialized_schema = FetchAllMemberMaterializedSchema()

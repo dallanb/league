@@ -466,12 +466,13 @@ CREATE TABLE public.member_materialized (
     uuid uuid NOT NULL,
     ctime bigint,
     mtime bigint,
-    display_name character varying NOT NULL,
+    display_name character varying,
     email character varying(255) NOT NULL,
     "user" uuid,
     member uuid,
     status character varying NOT NULL,
-    league uuid
+    league uuid NOT NULL,
+    country character varying
 );
 
 
@@ -495,6 +496,7 @@ ALTER TABLE public.member_status OWNER TO league;
 --
 
 COPY public.avatar (uuid, ctime, mtime, s3_filename) FROM stdin;
+a959ab24-eef8-4717-95f8-75c763183f71	1611448263690	\N	0d40ca41-7b62-4bb8-ac76-a9b53da85f0e.jpeg
 \.
 
 
@@ -503,7 +505,7 @@ COPY public.avatar (uuid, ctime, mtime, s3_filename) FROM stdin;
 --
 
 COPY public.league (uuid, ctime, mtime, owner_uuid, name, search_vector, status, avatar_uuid) FROM stdin;
-aa654f54-8088-4fe4-8536-1e4155c82388	1611441726007	\N	bfeb0732-c3c0-49ad-8c50-74eb75e36994	SFU Golf Club	'club':3 'golf':2 'sfu':1	active	\N
+0d40ca41-7b62-4bb8-ac76-a9b53da85f0e	1611448262520	1611448263754	4f003f91-20f3-459f-b4de-e17a05d837b8	Duke Golf Club	'club':3 'duke':1 'golf':2	active	a959ab24-eef8-4717-95f8-75c763183f71
 \.
 
 
@@ -512,8 +514,8 @@ aa654f54-8088-4fe4-8536-1e4155c82388	1611441726007	\N	bfeb0732-c3c0-49ad-8c50-74
 --
 
 COPY public.league_status (ctime, mtime, name) FROM stdin;
-1611440880470	\N	active
-1611440880470	\N	inactive
+1611448129440	\N	active
+1611448129440	\N	inactive
 \.
 
 
@@ -522,8 +524,7 @@ COPY public.league_status (ctime, mtime, name) FROM stdin;
 --
 
 COPY public.member (uuid, ctime, mtime, email, user_uuid, status, league_uuid) FROM stdin;
-d80d4801-49d4-44ab-bfbc-a88953ce196f	1611441726054	\N	dallan.bhatti@techtapir.com	bfeb0732-c3c0-49ad-8c50-74eb75e36994	active	aa654f54-8088-4fe4-8536-1e4155c82388
-3985d4b1-d7ca-416f-8569-64081725e81a	1611442066849	\N	dallabhatti@techtapir.com	08413929-34c4-45ca-93a3-1f8e9fac9626	pending	aa654f54-8088-4fe4-8536-1e4155c82388
+e82501b9-cfaa-4091-bc1f-653ed1d8cfe8	1611448262607	\N	dallan.bhatti@techtapir.com	4f003f91-20f3-459f-b4de-e17a05d837b8	active	0d40ca41-7b62-4bb8-ac76-a9b53da85f0e
 \.
 
 
@@ -531,9 +532,8 @@ d80d4801-49d4-44ab-bfbc-a88953ce196f	1611441726054	\N	dallan.bhatti@techtapir.co
 -- Data for Name: member_materialized; Type: TABLE DATA; Schema: public; Owner: league
 --
 
-COPY public.member_materialized (uuid, ctime, mtime, display_name, email, "user", member, status, league) FROM stdin;
-d80d4801-49d4-44ab-bfbc-a88953ce196f	1611441726074	\N	Dallan Bhatti	dallan.bhatti@techtapir.com	bfeb0732-c3c0-49ad-8c50-74eb75e36994	68b65892-bca4-4e0f-85c2-f6cc87c755ba	active	aa654f54-8088-4fe4-8536-1e4155c82388
-3985d4b1-d7ca-416f-8569-64081725e81a	1611442066865	\N	Dalla Bhatti	dallabhatti@techtapir.com	08413929-34c4-45ca-93a3-1f8e9fac9626	50d5b97d-44e1-4933-8d4b-42ae396ed230	pending	aa654f54-8088-4fe4-8536-1e4155c82388
+COPY public.member_materialized (uuid, ctime, mtime, display_name, email, "user", member, status, league, country) FROM stdin;
+e82501b9-cfaa-4091-bc1f-653ed1d8cfe8	1611448262630	\N	Dallan Bhatti	dallan.bhatti@techtapir.com	4f003f91-20f3-459f-b4de-e17a05d837b8	68bb0f90-044c-4636-bccd-e895da313a9c	active	0d40ca41-7b62-4bb8-ac76-a9b53da85f0e	CA
 \.
 
 
@@ -542,10 +542,10 @@ d80d4801-49d4-44ab-bfbc-a88953ce196f	1611441726074	\N	Dallan Bhatti	dallan.bhatt
 --
 
 COPY public.member_status (ctime, mtime, name) FROM stdin;
-1611440880491	\N	invited
-1611440880491	\N	pending
-1611440880491	\N	active
-1611440880491	\N	inactive
+1611448129455	\N	invited
+1611448129455	\N	pending
+1611448129455	\N	active
+1611448129455	\N	inactive
 \.
 
 

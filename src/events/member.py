@@ -20,8 +20,8 @@ class Member:
             members = self.member_materialized_service.find(member=data['uuid'])
             if members.total:
                 member = members.items[0]
-                self.member_materialized_service.update(
-                    uuid=member.uuid,
+                self.member_materialized_service.apply(
+                    instance=member,
                     name=data['display_name']
                 )
         elif key == 'avatar_created':

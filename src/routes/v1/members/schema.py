@@ -46,7 +46,7 @@ class FetchMemberSchema(Schema):
 
 
 class FetchMaterializedUserSchema(Schema):
-    user_uuid = fields.UUID(required=True)
+    user = fields.UUID(required=True, data_key="user_uuid")
     league = fields.UUID(required=False, data_key="league_uuid", missing=None)
 
 

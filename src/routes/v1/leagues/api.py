@@ -83,11 +83,11 @@ class LeaguesListAPI(Base):
 
         external_member = self.member.fetch_member(user_uuid=str(g.user))
 
-        member = self.member.create(email=external_member['email'], user_uuid=g.user, league=league, status='active')
+        member = self.member.create(email=external_member['email'], user_uuid=g.user, league=league, status='pending')
         _ = self.member_materialized.create(uuid=member.uuid, display_name=external_member['display_name'],
                                             user=external_member['user_uuid'], email=external_member['email'],
-                                            member=external_member['uuid'], league=league.uuid,
-                                            country=external_member['country'], status='active')
+                                            member=None, league=league.uuid,
+                                            country=external_member['country'], status='pending')
         return DataResponse(
             data={
                 'leagues': self.dump(

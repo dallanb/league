@@ -10,12 +10,12 @@ class Member:
         self.member_materialized_service = MemberMaterializedService()
 
     def handle_event(self, key, data):
-        # this means a user has been updated from invited to active and data from member service can be used to
-        # populate associated entry in member model
         if key == 'member_active':
-            members = self.member_service.find(email=data['email'], league_uuid=data['league_uuid'], status='invited')
+            members = self.member_service.find(email=data['email'], league_uuid=data['league_uuid'])
             if members.total:
-                self.member_service.apply(instance=members.items[0], user_uuid=data['user_uuid'], status='pending')
+                member = members.items[0]
+                self.member_service.apply(instance=member, user_uuid=data['user_uuid'],
+                                          status='pending' if member.status.name == 'invited' else 'active')
         elif key == 'display_name_updated':
             members = self.member_materialized_service.find(member=data['uuid'])
             if members.total:

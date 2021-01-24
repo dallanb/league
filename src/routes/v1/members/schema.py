@@ -53,6 +53,7 @@ class FetchAllMemberMaterializedSchema(Schema):
     search = fields.String(required=False)
     sort_by = fields.String(required=False)
     league = fields.UUID(required=False, data_key="league_uuid")
+    status = fields.String(required=False)
 
 
 create_schema = CreateMemberSchema()

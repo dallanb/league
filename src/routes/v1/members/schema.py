@@ -34,6 +34,7 @@ class DumpMemberMaterializedSchema(Schema):
     email = fields.Email()
     user = fields.UUID()
     member = fields.UUID()
+    country = fields.String()
 
 
 class FetchMemberSchema(Schema):

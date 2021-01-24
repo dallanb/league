@@ -140,7 +140,7 @@ class MembersMaterializedUserAPI(Base):
     @marshal_with(DataResponse.marshallable())
     @assign_user
     def get(self, user_uuid):
-        data = self.clean(schema=fetch_all_schema, instance={**request.args, 'user_uuid': user_uuid})
+        data = self.clean(schema=fetch_materialized_user_schema, instance={**request.args, 'user_uuid': user_uuid})
         members = self.member_materialized.find(user_uuid=user_uuid, **data)
         if not members.total:
             self.throw_error(http_code=self.code.NOT_FOUND)

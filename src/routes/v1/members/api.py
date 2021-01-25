@@ -96,6 +96,7 @@ class MembersListAPI(Base):
         member = self.member.create(user_uuid=data['user_uuid'], email=data['email'], league=leagues.items[0],
                                     status=status)
         _ = self.member_materialized.create(uuid=member.uuid,
+                                            username=existing_member.get('username', None),
                                             display_name=existing_member.get('display_name', None),
                                             email=data['email'],
                                             user=existing_member.get('user_uuid', None),

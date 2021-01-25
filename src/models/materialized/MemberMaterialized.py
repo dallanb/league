@@ -15,6 +15,7 @@ class MemberMaterialized(db.Model):
     mtime = db.Column(db.BigInteger, onupdate=time_now)
     display_name = db.Column(db.String, nullable=True)
     email = db.Column(EmailType, nullable=False)
+    username = db.Column(db.String, nullable=True)
     user = db.Column(UUIDType(binary=False), nullable=True)
     member = db.Column(UUIDType(binary=False), nullable=True)
     status = db.Column(db.String, nullable=False)

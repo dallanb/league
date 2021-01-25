@@ -30,6 +30,7 @@ class DumpMemberMaterializedSchema(Schema):
     status = fields.String()
     avatar = fields.String()
     league = fields.UUID()
+    username = fields.String()
     display_name = fields.String()
     email = fields.Email()
     user = fields.UUID()

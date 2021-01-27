@@ -16,6 +16,9 @@ class League:
         # populate associated entry in league model
         if key == 'member_created':
             self.logger.info('member created')
+            # if the user is the owner of the league then set the status to active
+            if data['user_uuid'] == data['owner_uuid']:
+                _ = self.member_service.update(uuid=data['uuid'], status='active')
         elif key == 'member_pending' or key == 'member_active' or key == 'member_inactive':
             self.logger.info('member updated')
             status = key.split('member_')[1]

@@ -15,8 +15,6 @@ class Member:
             if members.total:
                 member = members.items[0]
                 # if the user is the owner of the league then set the status to active
-                self.logger.info(data['user_uuid'])
-                self.logger.info(str(member.league.owner_uuid))
                 if data['user_uuid'] == str(member.league.owner_uuid):
                     status = 'active'
                 else:

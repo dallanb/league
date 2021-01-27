@@ -15,7 +15,7 @@ class Member:
             if members.total:
                 member = members.items[0]
                 self.member_service.apply(instance=member, user_uuid=data['user_uuid'],
-                                          status='pending' if member.status.name == 'invited' else 'active')
+                                          status='pending')
         elif key == 'display_name_updated':
             members = self.member_materialized_service.find(member=data['uuid'])
             if members.total:

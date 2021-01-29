@@ -109,9 +109,14 @@ class MemberUserLeaguesListAPI(Base):
     def get(self, user_uuid):
         data = self.clean(schema=fetch_member_user_leagues_schema, instance={**request.args,
                                                                              'user_uuid': user_uuid})  # not cleaning user_uuid at base request level so make sure it is cleaned here
-        leagues = self.league.find_by_participant(filters={'user_uuid': data['user_uuid']}, include=data['include'],
+        leagues = self.league.find_by_participant(user_uuid=data['user_uuid'], include=data['include'],
                                                   paginate=
                                                   {'page': data['page'], 'per_page': data['per_page']})
+        self.logger.info(leagues.total)
+        self.logger.info(leagues.items[0])
+        self.logger.info(leagues.items[0].member)
+        self.logger.info(leagues.items[0].League)
+        self.logger.info(dir(leagues.items[0]))
         return DataResponse(
             data={
                 '_metadata': self.prepare_metadata(
@@ -120,7 +125,7 @@ class MemberUserLeaguesListAPI(Base):
                     page=data['page'],
                     per_page=data['per_page']),
                 'leagues': self.dump(
-                    schema=dump_many_schema,
+                    schema=dump_many_member_user_schema,
                     instance=leagues.items,
                     params={
                         'include': data['include'],

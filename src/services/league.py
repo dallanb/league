@@ -42,5 +42,4 @@ class League(Base):
         query = query.join(MemberMaterializedModel,
                            MemberMaterializedModel.league == self.league_model.uuid).filter(
             MemberMaterializedModel.user == user_uuid)
-        self.logger.info(query)
         return self.db.clean_query(query=query, **paginate)

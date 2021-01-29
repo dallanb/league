@@ -112,11 +112,6 @@ class MemberUserLeaguesListAPI(Base):
         leagues = self.league.find_by_participant(user_uuid=data['user_uuid'], include=data['include'],
                                                   paginate=
                                                   {'page': data['page'], 'per_page': data['per_page']})
-        self.logger.info(leagues.total)
-        self.logger.info(leagues.items[0])
-        self.logger.info(leagues.items[0].member)
-        self.logger.info(leagues.items[0].League)
-        self.logger.info(dir(leagues.items[0]))
         return DataResponse(
             data={
                 '_metadata': self.prepare_metadata(

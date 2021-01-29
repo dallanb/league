@@ -40,7 +40,7 @@ class DumpLeagueSchema(Schema):
 
 
 class DumpLeagueMemberUserSchema(Schema):
-    member = fields.UUID()
+    MemberMaterialized = fields.Nested('DumpMemberMaterializedSchema', data_key="member")
     League = fields.Nested(DumpLeagueSchema, data_key="league")
 
 

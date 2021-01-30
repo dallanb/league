@@ -12,8 +12,6 @@ class League:
 
     def handle_event(self, key, data):
         self.logger.info('league event')
-        # this means a user has been updated from invited to active and data from league service can be used to
-        # populate associated entry in league model
         if key == 'member_created':
             self.logger.info('member created')
         elif key == 'member_pending' or key == 'member_active' or key == 'member_inactive':

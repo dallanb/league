@@ -83,12 +83,12 @@ class LeaguesListAPI(Base):
 
         external_member = self.member.fetch_member(user_uuid=str(g.user))
 
-        member = self.member.create(email=external_member['email'], user_uuid=g.user, league=league, status='pending')
+        member = self.member.create(email=external_member['email'], user_uuid=g.user, league=league, status='invited')
         _ = self.member_materialized.create(uuid=member.uuid, username=external_member['username'],
                                             display_name=external_member['display_name'],
                                             user=external_member['user_uuid'], email=external_member['email'],
                                             member=None, league=league.uuid,
-                                            country=external_member['country'], status='pending')
+                                            country=external_member['country'], status='invited')
         return DataResponse(
             data={
                 'leagues': self.dump(
@@ -109,7 +109,7 @@ class MemberUserLeaguesListAPI(Base):
     def get(self, user_uuid):
         data = self.clean(schema=fetch_member_user_leagues_schema, instance={**request.args,
                                                                              'user_uuid': user_uuid})  # not cleaning user_uuid at base request level so make sure it is cleaned here
-        leagues = self.league.find_by_participant(filters={'user_uuid': data['user_uuid']}, include=data['include'],
+        leagues = self.league.find_by_participant(user_uuid=data['user_uuid'], include=data['include'],
                                                   paginate=
                                                   {'page': data['page'], 'per_page': data['per_page']})
         return DataResponse(
@@ -120,7 +120,7 @@ class MemberUserLeaguesListAPI(Base):
                     page=data['page'],
                     per_page=data['per_page']),
                 'leagues': self.dump(
-                    schema=dump_many_schema,
+                    schema=dump_many_member_user_schema,
                     instance=leagues.items,
                     params={
                         'include': data['include'],

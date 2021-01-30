@@ -88,19 +88,17 @@ class MembersListAPI(Base):
                 self.throw_error(http_code=self.code.BAD_REQUEST,
                                  msg='This user already exists, please pass their user_uuid')
             existing_member = {}
-            status = 'invited'
         else:
             existing_member = self.member.fetch_member(user_uuid=str(data['user_uuid']))
-            status = 'pending'
 
         member = self.member.create(user_uuid=data['user_uuid'], email=data['email'], league=leagues.items[0],
-                                    status=status)
+                                    status='invited')
         _ = self.member_materialized.create(uuid=member.uuid,
                                             username=existing_member.get('username', None),
                                             display_name=existing_member.get('display_name', None),
                                             email=data['email'],
                                             user=existing_member.get('user_uuid', None),
-                                            member=None, status=status,
+                                            member=None, status='invited',
                                             country=existing_member.get('country', None),
                                             league=leagues.items[0].uuid)
         return DataResponse(
@@ -163,7 +161,6 @@ class MembersMaterializedListAPI(Base):
     @marshal_with(DataResponse.marshallable())
     def get(self):
         data = self.clean(schema=fetch_all_materialized_schema, instance=request.args)
-        self.logger.info(data)
         members = self.member_materialized.find(**data)
         return DataResponse(
             data={

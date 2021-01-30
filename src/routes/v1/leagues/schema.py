@@ -39,6 +39,11 @@ class DumpLeagueSchema(Schema):
         return data
 
 
+class DumpLeagueMemberUserSchema(Schema):
+    MemberMaterialized = fields.Nested('DumpMemberMaterializedSchema', data_key="member")
+    League = fields.Nested(DumpLeagueSchema, data_key="league")
+
+
 class UpdateLeagueSchema(Schema):
     name = fields.Str(required=False)
 
@@ -67,6 +72,9 @@ class FetchMemberUserLeagueSchema(Schema):
 create_schema = CreateLeagueSchema()
 dump_schema = DumpLeagueSchema()
 dump_many_schema = DumpLeagueSchema(many=True)
+dump_member_user_schema = DumpLeagueMemberUserSchema()
+dump_many_member_user_schema = DumpLeagueMemberUserSchema(many=True)
+
 update_schema = UpdateLeagueSchema()
 fetch_schema = FetchLeagueSchema()
 fetch_all_schema = FetchAllLeagueSchema()

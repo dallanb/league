@@ -1,4 +1,6 @@
-from marshmallow import Schema, post_dump
+import logging
+
+from marshmallow import Schema, post_dump, pre_load
 from webargs import fields
 
 
@@ -58,12 +60,28 @@ class FetchAllMemberSchema(Schema):
     user_uuid = fields.UUID(required=False)
 
 
+class _FetchAllMemberMaterializedSchemaCompareBy(Schema):
+    status = fields.Int()
+
+
 class FetchAllMemberMaterializedSchema(Schema):
     page = fields.Int(required=False, missing=1)
     per_page = fields.Int(required=False, missing=10)
     sort_by = fields.String(required=False)
     league = fields.UUID(required=False, data_key="league_uuid")
     status = fields.String(required=False)
+    compare_by = fields.Dict(fields.Str(), fields.Int())
+
+    @pre_load
+    def compare_by_handler(self, data, **kwargs):
+        mutable_dict = data.to_dict()
+        compare_by_list = [k for k in mutable_dict if k.split('.')[0] == 'compare_by']
+        for compare_by in compare_by_list:
+            val = mutable_dict.pop(compare_by)
+            if not mutable_dict.get('compare_by', None):
+                mutable_dict['compare_by'] = {}
+            mutable_dict['compare_by'][compare_by[11:]] = val
+        return mutable_dict
 
 
 create_schema = CreateMemberSchema()

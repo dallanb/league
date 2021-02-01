@@ -1,4 +1,5 @@
 import collections
+import logging
 import re
 
 import inflect
@@ -183,7 +184,23 @@ class DB:
         return has_key_filter
 
     @classmethod
-    def _generate_filters(cls, model, nested=None, search=None, within=None, has_key=None, **kwargs):
+    def _generate_compare_by_filter(cls, model, compare_by):
+        compare_by_filter = []
+        for k, v in compare_by.items():
+            [key, compare_op] = k.split('.')
+            compare_by_filter.append(
+                (
+                    'and',
+                    [
+                        (compare_op, [(getattr(model, key), v)])
+                    ]
+                )
+            )
+        logging.info(compare_by_filter)
+        return compare_by_filter
+
+    @classmethod
+    def _generate_filters(cls, model, nested=None, search=None, within=None, has_key=None, compare_by=None, **kwargs):
         filters = []
 
         if len(kwargs):
@@ -200,6 +217,9 @@ class DB:
 
         if has_key:
             filters.extend(cls._generate_has_key_filter(model=model, has_key=has_key))
+
+        if compare_by:
+            filters.extend(cls._generate_compare_by_filter(model=model, compare_by=compare_by))
 
         return filters
 
@@ -243,9 +263,11 @@ class DB:
 
     @classmethod
     # TODO: Consider using dataclass instead of a named tuple
-    def find(cls, model, page=None, per_page=None, expand=[], include=[], sort_by=None, nested={}, search=None,
+    def find(cls, model, page=None, per_page=None, expand=[], include=[], sort_by=None, compare_by=None, nested={},
+             search=None,
              within=None, has_key=None, **kwargs):
         filters = cls._generate_filters(model=model, nested=nested, search=search, within=within, has_key=has_key,
+                                        compare_by=compare_by,
                                         **kwargs)
         query = cls._query_builder(model=model, filters=filters, include=include, expand=expand, sort_by=sort_by)
 

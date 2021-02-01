@@ -13,10 +13,10 @@ services:
     container_name: league
     build:
       context: .
-      dockerfile: ./build/Dockerfile
+      dockerfile: ./build/Dockerfile.qaw
     restart: on-failure
     volumes:
-      - ./migrations:/home/app/migrations
+      - ${HUNCHO_DIR}/migrations/qaw/league:/home/app/migrations
       - ./bin:/home/app/bin
       - ./tests:/home/app/tests
       - ./seeds:/home/app/seeds
@@ -25,7 +25,7 @@ services:
       - ./manage.py:/home/app/manage.py
       - ./setup.py:/home/app/setup.py
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.league
+      - ${HUNCHO_DIR}/env/qaw/.env.league
       - ${HUNCHO_DIR}/secrets/s3/credentials.txt
     healthcheck:
       test: curl --fail -s league:5000/ping || exit 1
@@ -43,10 +43,10 @@ services:
     image: redis:6
     restart: unless-stopped
     volumes:
-      - ${HUNCHO_DIR}/data/dev/league_cache/redis_data:/var/libs/redis
-      - ${HUNCHO_DIR}/data/dev/league_cache/redis.conf:/usr/local/etc/redis/redis.conf
+      - ${HUNCHO_DIR}/data/qaw/league_cache/redis_data:/var/libs/redis
+      - ${HUNCHO_DIR}/data/qaw/league_cache/redis.conf:/usr/local/etc/redis/redis.conf
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.league_cache
+      - ${HUNCHO_DIR}/env/qaw/.env.league_cache
     healthcheck:
       test: [ "CMD", "redis-cli","ping" ]
       interval: 30s
@@ -58,9 +58,9 @@ services:
     container_name: league_db
     image: postgres:9.6
     volumes:
-      - ${HUNCHO_DIR}/data/dev/league_db/data:/var/lib/postgresql/data/
+      - ${HUNCHO_DIR}/data/qaw/league_db/data:/var/lib/postgresql/data/
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.league_db
+      - ${HUNCHO_DIR}/env/qaw/.env.league_db
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U league" ]
       interval: 10s
@@ -75,7 +75,7 @@ services:
     ports:
       - 8081:8081
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.league-redis-commander
+      - ${HUNCHO_DIR}/env/qaw/.env.league-redis-commander
     depends_on:
       - league_cache
     networks:

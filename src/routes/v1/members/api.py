@@ -161,7 +161,6 @@ class MembersMaterializedListAPI(Base):
     @marshal_with(DataResponse.marshallable())
     def get(self):
         data = self.clean(schema=fetch_all_materialized_schema, instance=request.args)
-        self.logger.info(data)
         members = self.member_materialized.find(**data)
         return DataResponse(
             data={

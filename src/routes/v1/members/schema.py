@@ -1,7 +1,8 @@
-import logging
-
 from marshmallow import Schema, post_dump, pre_load
+from marshmallow_enum import EnumField
 from webargs import fields
+
+from src.common import MemberStatusEnum
 
 
 class CreateMemberSchema(Schema):
@@ -29,7 +30,7 @@ class DumpMemberMaterializedSchema(Schema):
     ctime = fields.Integer()
     mtime = fields.Integer()
     name = fields.String()
-    status = fields.String()
+    status = EnumField(MemberStatusEnum)
     avatar = fields.String()
     league = fields.UUID()
     username = fields.String()

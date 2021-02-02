@@ -1,5 +1,4 @@
 import collections
-import logging
 import re
 
 import inflect

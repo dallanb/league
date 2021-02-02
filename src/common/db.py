@@ -196,7 +196,6 @@ class DB:
                     ]
                 )
             )
-        logging.info(compare_by_filter)
         return compare_by_filter
 
     @classmethod

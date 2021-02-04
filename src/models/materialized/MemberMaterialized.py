@@ -1,5 +1,6 @@
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import UUIDType, EmailType
+from sqlalchemy_utils.types import TSVectorType
 
 from ... import db
 from ...common import MemberStatusEnum
@@ -23,12 +24,14 @@ class MemberMaterialized(db.Model):
     country = db.Column(db.String, nullable=True)
     avatar = db.Column(db.String, nullable=True)
 
-    #FK
+    # Search
+    search_vector = db.Column(TSVectorType('display_name', 'username', 'email'))
+
+    # FK
     status = db.Column(db.Enum(MemberStatusEnum), db.ForeignKey('member_status.name'), nullable=False)
 
     # Relationship
     member_status = db.relationship("MemberStatus")
-
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

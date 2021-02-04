@@ -68,6 +68,7 @@ class _FetchAllMemberMaterializedSchemaCompareBy(Schema):
 class FetchAllMemberMaterializedSchema(Schema):
     page = fields.Int(required=False, missing=1)
     per_page = fields.Int(required=False, missing=10)
+    search = fields.String(required=False)
     sort_by = fields.String(required=False)
     league = fields.UUID(required=False, data_key="league_uuid")
     status = fields.String(required=False)

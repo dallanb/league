@@ -3,7 +3,7 @@ version: "3.2"
 services:
   app:
     container_name: app
-    image: dallanbhatti/app:test
+    image: dallanbhatti/league:test
     restart: on-failure
     env_file:
       - env/test/.env.app

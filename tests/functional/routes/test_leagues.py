@@ -5,7 +5,7 @@ import pytest
 ###########
 # Fetch
 ###########
-from src import app
+from src import app, services
 
 
 #############
@@ -15,7 +15,7 @@ from src import app
 ###########
 # Fetch
 ###########
-def test_fetch_league(reset_db, pause_notification, seed_league, seed_wallet, seed_stat):
+def test_fetch_league(reset_db, pause_notification, seed_league, seed_member, seed_member_materialized):
     """
     GIVEN a Flask application configured for testing
     WHEN the GET endpoint 'league' is requested
@@ -33,73 +33,10 @@ def test_fetch_league(reset_db, pause_notification, seed_league, seed_wallet, se
     response = json.loads(response.data)
     assert response['msg'] == "OK"
     leagues = response['data']['leagues']
-    assert leagues['status'] == 'pending'
+    assert leagues['status'] == 'active'
     assert leagues['uuid'] == str(league_uuid)
-    assert leagues['user_uuid'] == str(pytest.user_uuid)
-    assert leagues['username'] == pytest.username
-    assert leagues['display_name'] == pytest.display_name
-    assert leagues['country'] == pytest.country
-    assert leagues['league_uuid'] == str(pytest.league_uuid)
-
-
-def test_fetch_league_user():
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the GET endpoint 'league_user' is requested
-    THEN check that the response is valid
-    """
-    user_uuid = pytest.user_uuid
-
-    # Header
-    headers = {'X-Consumer-Custom-ID': pytest.user_uuid}
-
-    # Params
-    params = {'league_uuid': pytest.league_uuid}
-
-    # Request
-    response = app.test_client().get(f'/leagues/user/{user_uuid}', headers=headers, query_string=params)
-    # Response
-    assert response.status_code == 200
-    response = json.loads(response.data)
-    assert response['msg'] == "OK"
-    leagues = response['data']['leagues']
-    assert leagues['status'] == 'pending'
-    assert leagues['uuid'] == str(pytest.league.uuid)
-    assert leagues['user_uuid'] == str(pytest.user_uuid)
-    assert leagues['username'] == pytest.username
-    assert leagues['display_name'] == pytest.display_name
-    assert leagues['country'] == pytest.country
-    assert leagues['league_uuid'] == str(pytest.league_uuid)
-
-
-def test_fetch_my_league_user():
-    """
-    GIVEN a Flask application configured for testing
-    WHEN the GET endpoint 'league_user' is requested
-    THEN check that the response is valid
-    """
-    user_uuid = pytest.user_uuid
-
-    # Header
-    headers = {'X-Consumer-Custom-ID': pytest.user_uuid}
-
-    # Params
-    params = {'league_uuid': pytest.league_uuid}
-
-    # Request
-    response = app.test_client().get(f'/leagues/user/me', headers=headers, query_string=params)
-    # Response
-    assert response.status_code == 200
-    response = json.loads(response.data)
-    assert response['msg'] == "OK"
-    leagues = response['data']['leagues']
-    assert leagues['status'] == 'pending'
-    assert leagues['uuid'] == str(pytest.league.uuid)
-    assert leagues['user_uuid'] == str(pytest.user_uuid)
-    assert leagues['username'] == pytest.username
-    assert leagues['display_name'] == pytest.display_name
-    assert leagues['country'] == pytest.country
-    assert leagues['league_uuid'] == str(pytest.league_uuid)
+    assert leagues['owner_uuid'] == str(pytest.user_uuid)
+    assert leagues['name'] == pytest.league_name
 
 
 ###########
@@ -114,89 +51,98 @@ def test_fetch_all_league():
     # Header
     headers = {'X-Consumer-Custom-ID': pytest.user_uuid}
 
-    # Params
-    params = {'league_uuid': pytest.league_uuid}
-
     # Request
-    response = app.test_client().get(f'/leagues', headers=headers, query_string=params)
+    response = app.test_client().get(f'/leagues', headers=headers)
     # Response
     assert response.status_code == 200
     response = json.loads(response.data)
     assert response['msg'] == "OK"
     assert len(response['data']['leagues']) == 1
     leagues = response['data']['leagues'][0]
-    assert leagues['status'] == 'pending'
+    assert leagues['status'] == 'active'
     assert leagues['uuid'] == str(pytest.league.uuid)
-    assert leagues['user_uuid'] == str(pytest.user_uuid)
-    assert leagues['username'] == pytest.username
-    assert leagues['display_name'] == pytest.display_name
-    assert leagues['country'] == pytest.country
-    assert leagues['league_uuid'] == str(pytest.league_uuid)
+    assert leagues['owner_uuid'] == str(pytest.user_uuid)
+    assert leagues['name'] == pytest.league_name
 
 
-def test_fetch_all_league_standings():
+def test_fetch_all_member_user_league():
     """
     GIVEN a Flask application configured for testing
-    WHEN the GET endpoint 'leagues_standings' is requested
+    WHEN the GET endpoint 'member_user_leagues' is requested
+    THEN check that the response is valid
+    """
+    user_uuid = pytest.user_uuid
+
+    # Header
+    headers = {'X-Consumer-Custom-ID': pytest.user_uuid}
+
+    # Request
+    response = app.test_client().get(f'/members/leagues/user/{user_uuid}', headers=headers)
+    # Response
+    assert response.status_code == 200
+    response = json.loads(response.data)
+    assert response['msg'] == "OK"
+    assert len(response['data']['leagues']) == 1
+    league = response['data']['leagues'][0]['league']
+    member = response['data']['leagues'][0]['member']
+    assert league['status'] == 'active'
+    assert league['uuid'] == str(pytest.league.uuid)
+    assert league['owner_uuid'] == str(pytest.user_uuid)
+    assert league['name'] == pytest.league_name
+    assert member['user'] == str(pytest.user_uuid)
+
+
+def test_fetch_all_my_member_user_league():
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the GET endpoint 'member_user_leagues' is requested
     THEN check that the response is valid
     """
     # Header
     headers = {'X-Consumer-Custom-ID': pytest.user_uuid}
 
-    # Params
-    params = {'league_uuid': pytest.league_uuid, 'include': 'stat'}
-
     # Request
-    response = app.test_client().get(f'/leagues/standings', headers=headers, query_string=params)
+    response = app.test_client().get(f'/members/leagues/user/me', headers=headers)
     # Response
     assert response.status_code == 200
     response = json.loads(response.data)
     assert response['msg'] == "OK"
     assert len(response['data']['leagues']) == 1
-    leagues = response['data']['leagues'][0]
-    assert leagues['status'] == 'pending'
-    assert leagues['uuid'] == str(pytest.league.uuid)
-    assert leagues['user_uuid'] == str(pytest.user_uuid)
-    assert leagues['username'] == pytest.username
-    assert leagues['display_name'] == pytest.display_name
-    assert leagues['country'] == pytest.country
-    assert leagues['league_uuid'] == str(pytest.league_uuid)
-    stats = leagues['stat']
-    assert stats is not None
+    league = response['data']['leagues'][0]['league']
+    member = response['data']['leagues'][0]['member']
+    assert league['status'] == 'active'
+    assert league['uuid'] == str(pytest.league.uuid)
+    assert league['owner_uuid'] == str(pytest.user_uuid)
+    assert league['name'] == pytest.league_name
+    assert member['user'] == str(pytest.user_uuid)
 
 
-def test_fetch_all_league_bulk():
+###########
+# Create
+###########
+def test_create_league(reset_db, pause_notification, mock_fetch_member):
     """
     GIVEN a Flask application configured for testing
-    WHEN the GET endpoint 'leagues_bulk' is requested
+    WHEN the PUT endpoint 'league' is requested
     THEN check that the response is valid
     """
-    # Header
+    league_name = pytest.league_name
+    # Headers
     headers = {'X-Consumer-Custom-ID': pytest.user_uuid}
 
     # Payload
-    payload = {
-        "within": {
-            "key": "uuid",
-            "value": [pytest.league.uuid]
-        }
-    }
+    payload = {'name': league_name}
 
     # Request
-    response = app.test_client().post(f'/leagues/bulk', headers=headers, json=payload)
+    response = app.test_client().post(f'/leagues', json=payload, headers=headers)
+
     # Response
     assert response.status_code == 200
     response = json.loads(response.data)
     assert response['msg'] == "OK"
-    assert len(response['data']['leagues']) == 1
-    leagues = response['data']['leagues'][0]
-    assert leagues['status'] == 'pending'
-    assert leagues['uuid'] == str(pytest.league.uuid)
-    assert leagues['user_uuid'] == str(pytest.user_uuid)
-    assert leagues['username'] == pytest.username
-    assert leagues['display_name'] == pytest.display_name
-    assert leagues['country'] == pytest.country
-    assert leagues['league_uuid'] == str(pytest.league_uuid)
+    leagues = response['data']['leagues']
+    assert leagues['uuid'] is not None
+    assert leagues['name'] == league_name
 
 
 ###########
@@ -208,14 +154,14 @@ def test_update_league(pause_notification):
     WHEN the PUT endpoint 'league' is requested
     THEN check that the response is valid
     """
-    league_uuid = pytest.league.uuid
-    display_name = 'Baby D'
+    league_uuid = services.LeagueService().find().items[0].uuid
+    league_name = 'Super Duper League'
 
     # Headers
     headers = {'X-Consumer-Custom-ID': pytest.user_uuid}
 
     # Payload
-    payload = {'display_name': display_name}
+    payload = {'name': league_name}
 
     # Request
     response = app.test_client().put(f'/leagues/{league_uuid}', json=payload, headers=headers)
@@ -226,12 +172,36 @@ def test_update_league(pause_notification):
     assert response['msg'] == "OK"
     leagues = response['data']['leagues']
     assert leagues['uuid'] is not None
-    assert leagues['display_name'] == display_name
+    assert leagues['name'] == league_name
 
 
 #############
 # FAIL
 #############
+
+
+###########
+# Create
+###########
+def test_create_league_fail(reset_db, pause_notification, mock_fetch_member):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the PUT endpoint 'league' is requested
+    THEN check that the response is valid
+    """
+    league_name = pytest.league_name
+    user_uuid = pytest.user_uuid
+    # Headers
+    headers = {'X-Consumer-Custom-ID': pytest.user_uuid}
+
+    # Payload
+    payload = {'name': league_name, 'owner_uuid': user_uuid}
+
+    # Request
+    response = app.test_client().post(f'/leagues', json=payload, headers=headers)
+
+    # Response
+    assert response.status_code == 400
 
 
 ###########

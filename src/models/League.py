@@ -19,8 +19,8 @@ class League(db.Model, BaseMixin):
 
     # Relationship
     league_status = db.relationship("LeagueStatus")
-    avatar = db.relationship("Avatar", lazy="noload")
-    members = db.relationship("Member", back_populates="league", lazy="noload")
+    avatar = db.relationship("Avatar")
+    members = db.relationship("Member", back_populates="league")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -12,11 +12,11 @@ class MemberMaterialized(Base):
         self.materialized_model = MaterializedModel
 
     def find(self, **kwargs):
-        return Base.find(self, model=self.materialized_model, **kwargs)
+        return self._find(model=self.materialized_model, **kwargs)
 
     def create(self, **kwargs):
-        materialized_member = self.init(model=self.materialized_model, **kwargs)
-        return self.save(instance=materialized_member)
+        materialized_member = self._init(model=self.materialized_model, **kwargs)
+        return self._save(instance=materialized_member)
 
     def update(self, uuid, **kwargs):
         materialized_members = self.find(uuid=uuid)
@@ -25,5 +25,5 @@ class MemberMaterialized(Base):
         return self.apply(instance=materialized_members.items[0], **kwargs)
 
     def apply(self, instance, **kwargs):
-        materialized_member = self.assign_attr(instance=instance, attr=kwargs)
-        return self.save(instance=materialized_member)
+        materialized_member = self._assign_attr(instance=instance, attr=kwargs)
+        return self._save(instance=materialized_member)

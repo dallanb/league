@@ -1,3 +1,4 @@
+from .fetch_member import fetch_member
 from .league_notification_create import league_notification_create
 from .league_notification_update import league_notification_update
 from .member_notification_create import member_notification_create

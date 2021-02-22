@@ -15,12 +15,12 @@ class Member(Base):
         self.member_model = MemberModel
 
     def find(self, **kwargs):
-        return Base.find(self, model=self.member_model, **kwargs)
+        return self._find(model=self.member_model, **kwargs)
 
     @member_notification(operation='create')
     def create(self, **kwargs):
-        member = self.init(model=self.member_model, **kwargs)
-        return self.save(instance=member)
+        member = self._init(model=self.member_model, **kwargs)
+        return self._save(instance=member)
 
     def update(self, uuid, **kwargs):
         members = self.find(uuid=uuid)
@@ -31,8 +31,8 @@ class Member(Base):
     @member_notification(operation='update')
     def apply(self, instance, **kwargs):
         # if member status is being updated we will trigger a notification
-        member = self.assign_attr(instance=instance, attr=kwargs)
-        return self.save(instance=member)
+        member = self._assign_attr(instance=instance, attr=kwargs)
+        return self._save(instance=member)
 
     def fetch_members(self, params):
         res = MemberExternal().fetch_members(params=params)

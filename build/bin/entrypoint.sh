@@ -15,14 +15,14 @@ if [ "$DATABASE" = "{database_name}" ]; then
 fi
 
 
-if [ ! -d "migrations/dev/versions" ]; then
-  echo "Directory migrations/dev/versions does not exist."
-  flask db init --directory=migrations/dev
-  sed -i '/import sqlalchemy as sa/a import sqlalchemy_utils' migrations/dev/script.py.mako
-  flask db migrate --directory=migrations/dev
+if [ ! -d "migrations/versions" ]; then
+  echo "Directory migrations/versions does not exist."
+  flask db init --directory=migrations
+  sed -i '/import sqlalchemy as sa/a import sqlalchemy_utils' migrations/script.py.mako
 fi
 
-flask db upgrade --directory=migrations/dev
+flask db migrate --directory=migrations
+flask db upgrade --directory=migrations
 
 
 manage run -h 0.0.0.0

@@ -3,6 +3,7 @@ from flask_caching import Cache
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
+from flask_mongoengine import MongoEngine
 from flask_restful import Api, marshal_with
 from flask_seeder import FlaskSeeder
 from flask_sqlalchemy import SQLAlchemy
@@ -35,6 +36,8 @@ logging.config.dictConfig(app.config['LOGGING_CONFIG'])
 from .models import *
 # import routes
 from .routes import *
+# import services
+from .services import *
 
 # import common
 from .common import (
@@ -42,19 +45,21 @@ from .common import (
     ErrorResponse
 )
 
-if app.config['ENV'] != 'development':
-    # error handling
-    @app.errorhandler(Exception)
-    @marshal_with(ErrorResponse.marshallable())
-    def handle_error(error):
-        logging.error(error)
-        return ErrorResponse(), 500
+
+# error handling
+@app.errorhandler(Exception)
+@marshal_with(ErrorResponse.marshallable())
+def handle_error(error):
+    logging.error(f'Error: {error}')
+    return ErrorResponse(), 500
 
 
-    @app.errorhandler(ManualException)
-    @marshal_with(ErrorResponse.marshallable())
-    def handle_manual_error(error):
-        return ErrorResponse(code=error.code, msg=error.msg, err=error.err), error.code
+@app.errorhandler(ManualException)
+@marshal_with(ErrorResponse.marshallable())
+def handle_manual_error(error):
+    logging.error(f'Error: {error}')
+    return ErrorResponse(code=error.code, msg=error.msg, err=error.err), error.code
+
 
 # import libs
 from .libs import *

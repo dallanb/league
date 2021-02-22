@@ -1,0 +1,109 @@
+version: "3.2"
+
+services:
+  app:
+    container_name: app
+    image: dallanbhatti/app:test
+    restart: on-failure
+    env_file:
+      - env/test/.env.app
+    healthcheck:
+      test: curl --fail -s app:5000/ping || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - cache
+      - db
+      - kafka
+      - mongodb
+      - zookeeper
+    networks:
+      - test-net
+  cache:
+    container_name: cache
+    image: redis:6
+    restart: unless-stopped
+    volumes:
+      - cache_data:/var/libs/redis
+    env_file:
+      - env/test/.env.cache
+    healthcheck:
+      test: [ "CMD", "redis-cli","ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - test-net
+  db:
+    container_name: db
+    image: postgres:9.6
+    volumes:
+      - db_data:/var/lib/postgresql/data/
+    env_file:
+      - env/test/.env.db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U contest" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks:
+      - test-net
+  kafka:
+    container_name: kafka
+    image: wurstmeister/kafka:latest
+    restart: on-failure
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - env/test/.env.kafka
+    depends_on:
+      - zookeeper
+    networks:
+      - test-net
+  mongodb:
+    container_name: mongodb
+    image: mongo:3.6
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_home:/home/mongodb # this must be manually created and chown'd to 999 https://github.com/docker-library/mongo/issues/323
+    #      - build/bin/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+    #      - build/bin/reset-mongo.sh:/bin/reset-mongo.sh
+    env_file:
+      - env/test/.env.mongodb
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongodb:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    networks:
+      - test-net
+  web:
+    container_name: web
+    image: dallanbhatti/web:test
+    restart: on-failure
+    volumes:
+      - statics/.:/usr/share/nginx/
+    ports:
+      - 80:80
+    depends_on:
+      - app
+    networks:
+      - test-net
+  zookeeper:
+    container_name: zookeeper
+    image: wurstmeister/zookeeper:latest
+    restart: on-failure
+    env_file:
+      - env/test/.env.zookeeper
+    networks:
+      - test-net
+volumes:
+  db_data:
+  cache_data:
+  mongodb_data:
+  mongodb_home:
+  statics:
+networks:
+  test-net:
+    driver: bridge

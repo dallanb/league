@@ -3,7 +3,7 @@ import re
 
 import inflect
 from sqlalchemy import inspect, or_, and_
-# TODO INTEGRATE SEARCH
+from sqlalchemy_searchable import search as full_text_search
 
 from .. import db
 from ..common.cleaner import Cleaner
@@ -12,9 +12,7 @@ from ..common.error import *
 
 class DB:
     # Helpers
-
-    @staticmethod
-    def _query_builder(model, filters, expand=None, include=None, sort_by=None, limit=None,
+    def _query_builder(self, model, filters=[], expand=[], include=[], search=None, sort_by=None, limit=None,
                        offset=None):
         query = db.session.query(model)
         for logic_operator, filter_arr in filters:
@@ -55,21 +53,28 @@ class DB:
         for i, k in enumerate(include):
             options = db.joinedload(getattr(model, k))
             query = query.options(options)
+        if search is not None:
+            query = full_text_search(query, search, sort=True)
         if sort_by is not None:
-            direction = re.search('[.](a|de)sc', sort_by)
-            if direction is not None:
-                direction = direction.group()
-            key = sort_by.split(direction)[0]
-            if direction == '.asc':
-                query = query.order_by(getattr(model, key).asc())
-            elif direction == '.desc':
-                query = query.order_by(getattr(model, key).desc())
-            else:  # for now, lack of a direction will be interpreted as asc
-                query = query.order_by(getattr(model, key).asc())
+            query = self.apply_query_order_by(model=model, query=query, sort_by=sort_by)
         if limit is not None:
             query = query.limit(limit)
         if offset is not None:
             query = query.offset(offset)
+        return query
+
+    @staticmethod
+    def apply_query_order_by(model, query, sort_by):
+        direction = re.search('[.](a|de)sc', sort_by)
+        if direction is not None:
+            direction = direction.group()
+        key = sort_by.split(direction)[0]
+        if direction == '.asc':
+            query = query.order_by(getattr(model, key).asc())
+        elif direction == '.desc':
+            query = query.order_by(getattr(model, key).desc())
+        else:  # for now, lack of a direction will be interpreted as asc
+            query = query.order_by(getattr(model, key).asc())
         return query
 
     @staticmethod
@@ -155,7 +160,22 @@ class DB:
 
         return has_key_filter
 
-    def _generate_filters(self, model, nested=None, within=None, has_key=None, **kwargs):
+    @staticmethod
+    def _generate_compare_by_filter(model, compare_by):
+        compare_by_filter = []
+        for k, v in compare_by.items():
+            [key, compare_op] = k.split('.')
+            compare_by_filter.append(
+                (
+                    'and',
+                    [
+                        (compare_op, [(getattr(model, key), v)])
+                    ]
+                )
+            )
+        return compare_by_filter
+
+    def _generate_filters(self, model, nested=None, within=None, has_key=None, compare_by=None, **kwargs):
         filters = []
 
         if len(kwargs):
@@ -169,6 +189,9 @@ class DB:
 
         if has_key:
             filters.extend(self._generate_has_key_filter(model=model, has_key=has_key))
+
+        if compare_by:
+            filters.extend(self._generate_compare_by_filter(model=model, compare_by=compare_by))
 
         return filters
 

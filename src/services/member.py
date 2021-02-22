@@ -36,7 +36,6 @@ class Member(Base):
 
     def fetch_members(self, params):
         res = MemberExternal().fetch_members(params=params)
-        self.logger.info(res)
         return res['data']['members']
 
     def fetch_member(self, user_uuid, league_uuid=None):

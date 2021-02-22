@@ -4,8 +4,8 @@
 
 pip install -e .
 
-if [ "$DATABASE" = "{database_name}" ]; then
-  echo "Waiting for {database_name}..."
+if [ "$DATABASE" = "league" ]; then
+  echo "Waiting for league..."
 
   while ! nc -z $SQL_HOST $SQL_PORT; do
     sleep 0.1
@@ -15,14 +15,14 @@ if [ "$DATABASE" = "{database_name}" ]; then
 fi
 
 
-if [ ! -d "migrations/versions" ]; then
-  echo "Directory migrations/versions does not exist."
-  flask db init --directory=migrations
-  sed -i '/import sqlalchemy as sa/a import sqlalchemy_utils' migrations/script.py.mako
-fi
-
-flask db migrate --directory=migrations
-flask db upgrade --directory=migrations
+#if [ ! -d "migrations/dev/versions" ]; then
+#  echo "Directory migrations/dev/versions does not exist."
+#  flask db init --directory=migrations/dev
+#  sed -i '/import sqlalchemy as sa/a import sqlalchemy_utils' migrations/dev/script.py.mako
+#  flask db migrate --directory=migrations/dev
+#fi
+#
+#flask db upgrade --directory=migrations/dev
 
 
 manage run -h 0.0.0.0

@@ -1,7 +1,9 @@
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils import UUIDType, EmailType
+from sqlalchemy_utils.types import TSVectorType
 
 from ... import db
+from ...common import MemberStatusEnum
 from ...common.utils import camel_to_snake, time_now
 
 
@@ -18,10 +20,18 @@ class MemberMaterialized(db.Model):
     username = db.Column(db.String, nullable=True)
     user = db.Column(UUIDType(binary=False), nullable=True)
     member = db.Column(UUIDType(binary=False), nullable=True)
-    status = db.Column(db.String, nullable=False)
     league = db.Column(UUIDType(binary=False), nullable=False)
     country = db.Column(db.String, nullable=True)
     avatar = db.Column(db.String, nullable=True)
+
+    # Search
+    search_vector = db.Column(TSVectorType('display_name', 'username', 'email'))
+
+    # FK
+    status = db.Column(db.Enum(MemberStatusEnum), db.ForeignKey('member_status.name'), nullable=False)
+
+    # Relationship
+    member_status = db.relationship("MemberStatus")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

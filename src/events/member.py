@@ -14,8 +14,13 @@ class Member:
             members = self.member_service.find(email=data['email'], league_uuid=data['league_uuid'])
             if members.total:
                 member = members.items[0]
+                # if the user is the owner of the league then set the status to active
+                if data['user_uuid'] == str(member.league.owner_uuid):
+                    status = 'active'
+                else:
+                    status = 'pending'
                 self.member_service.apply(instance=member, user_uuid=data['user_uuid'],
-                                          status='pending')
+                                          status=status)
         elif key == 'display_name_updated':
             members = self.member_materialized_service.find(member=data['uuid'])
             if members.total:

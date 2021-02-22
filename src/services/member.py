@@ -35,18 +35,26 @@ class Member(Base):
         return self._save(instance=member)
 
     def fetch_members(self, params):
-        res = MemberExternal().fetch_members(params=params)
-        return res['data']['members']
+        try:
+            res = MemberExternal().fetch_members(params=params)
+            return res['data']['members']
+        except TypeError:
+            self.logger.error(f'fetch members failed')
+            return None
 
     def fetch_member(self, user_uuid, league_uuid=None):
         cache_key = user_uuid if not league_uuid else f'{user_uuid}_{league_uuid}'
         hit = self.cache.get(cache_key)
         if hit:
             return hit
-        res = MemberExternal().fetch_member_user(uuid=user_uuid, params={'league_uuid': league_uuid})
-        member = res['data']['members']
-        self.cache.set(cache_key, member, 3600)
-        return member
+        try:
+            res = MemberExternal().fetch_member_user(uuid=user_uuid, params={'league_uuid': league_uuid})
+            member = res['data']['members']
+            self.cache.set(cache_key, member, 3600)
+            return member
+        except TypeError:
+            self.logger.error(f'fetch member failed for user_uuid: {user_uuid} and league_uuid: {league_uuid}')
+            return None
 
     def fetch_member_batch(self, uuids):
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:

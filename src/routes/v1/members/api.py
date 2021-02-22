@@ -84,12 +84,17 @@ class MembersListAPI(Base):
         # the system
         if not data['user_uuid']:
             members = self.member.fetch_members(params={'email': data['email'], 'league_uuid': None})
+            if members is None:
+                self.throw_error(http_code=self.code.NOT_FOUND, msg='This user was not found')
             if len(members):
                 self.throw_error(http_code=self.code.BAD_REQUEST,
                                  msg='This user already exists, please pass their user_uuid')
+
             existing_member = {}
         else:
             existing_member = self.member.fetch_member(user_uuid=str(data['user_uuid']))
+            if existing_member is None:
+                self.throw_error(http_code=self.code.NOT_FOUND, msg='This user was not found')
 
         member = self.member.create(user_uuid=data['user_uuid'], email=data['email'], league=leagues.items[0],
                                     status='invited')

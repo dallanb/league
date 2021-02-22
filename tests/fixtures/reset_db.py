@@ -1,7 +1,7 @@
 import pytest
 
-from bin import init_contest_status, init_participant_status
-from src import db, common
+from bin import init_status
+from src import db, common, LeagueStatus, MemberStatus
 
 
 @pytest.fixture(scope='function')
@@ -10,9 +10,11 @@ def reset_db():
     meta = db.metadata
     for table in reversed(meta.sorted_tables):
         db.session.execute(table.delete())
+    db.session.expunge_all()
     db.session.commit()
     # create
     db.create_all()
     db.session.commit()
     # load
-    # Any Load operations
+    init_status(model=LeagueStatus, status_enums=common.LeagueStatusEnum)
+    init_status(model=MemberStatus, status_enums=common.MemberStatusEnum)

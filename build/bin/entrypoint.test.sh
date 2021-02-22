@@ -4,8 +4,8 @@
 
 pip install -e .
 
-if [ "$DATABASE" = "{database_name}" ]; then
-  echo "Waiting for {database_name}..."
+if [ "$DATABASE" = "app" ]; then
+  echo "Waiting for app..."
 
   while ! nc -z $SQL_HOST $SQL_PORT; do
     sleep 0.1

@@ -16,7 +16,6 @@ services:
       - cache
       - db
       - kafka
-      - mongodb
       - zookeeper
     networks:
       - test-net
@@ -61,35 +60,6 @@ services:
       - zookeeper
     networks:
       - test-net
-  mongodb:
-    container_name: mongodb
-    image: mongo:3.6
-    volumes:
-      - mongodb_data:/data/db
-      - mongodb_home:/home/mongodb # this must be manually created and chown'd to 999 https://github.com/docker-library/mongo/issues/323
-    #      - build/bin/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
-    #      - build/bin/reset-mongo.sh:/bin/reset-mongo.sh
-    env_file:
-      - env/test/.env.mongodb
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo mongodb:27017/test --quiet
-      interval: 10s
-      timeout: 5s
-      retries: 20
-    networks:
-      - test-net
-  web:
-    container_name: web
-    image: dallanbhatti/web:test
-    restart: on-failure
-    volumes:
-      - statics/.:/usr/share/nginx/
-    ports:
-      - 80:80
-    depends_on:
-      - app
-    networks:
-      - test-net
   zookeeper:
     container_name: zookeeper
     image: wurstmeister/zookeeper:latest
@@ -101,8 +71,6 @@ services:
 volumes:
   db_data:
   cache_data:
-  mongodb_data:
-  mongodb_home:
   statics:
 networks:
   test-net:

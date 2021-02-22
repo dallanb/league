@@ -102,6 +102,7 @@ services:
     networks:
       - app-net
 volumes:
+  cache_data:
   db_data:
 networks:
   app-net:

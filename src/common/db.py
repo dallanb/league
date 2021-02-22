@@ -196,7 +196,7 @@ class DB:
         return filters
 
     def clean_query(self, model, expand=None, include=None, sort_by=None, nested=None,
-                    within=None, has_key=None, **kwargs):
+                    within=None, has_key=None, search=None, **kwargs):
         if include is None:
             include = []
 
@@ -206,7 +206,7 @@ class DB:
         filters = self._generate_filters(model=model, nested=nested, within=within, has_key=has_key,
                                          **kwargs)
         query = self._query_builder(model=model, filters=filters, include=include, expand=expand,
-                                    sort_by=sort_by)
+                                    sort_by=sort_by, search=search)
         return query
 
     @staticmethod

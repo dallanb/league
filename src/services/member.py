@@ -55,8 +55,3 @@ class Member(Base):
         except TypeError:
             self.logger.error(f'fetch member failed for user_uuid: {user_uuid} and league_uuid: {league_uuid}')
             return None
-
-    def fetch_member_batch(self, uuids):
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            members = executor.map(self.fetch_member, uuids)
-        return members

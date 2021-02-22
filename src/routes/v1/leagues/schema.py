@@ -56,6 +56,7 @@ class FetchLeagueSchema(Schema):
 class FetchAllLeagueSchema(Schema):
     page = fields.Int(required=False, missing=1)
     per_page = fields.Int(required=False, missing=10)
+    search = fields.String(required=False)
     include = fields.DelimitedList(fields.String(), required=False, missing=[])
     expand = fields.DelimitedList(fields.String(), required=False, missing=[])
     owner_uuid = fields.UUID(required=False)

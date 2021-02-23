@@ -27,7 +27,7 @@ class Member:
                 member = members.items[0]
                 self.member_materialized_service.apply(
                     instance=member,
-                    name=data['display_name']
+                    display_name=data['display_name']
                 )
         elif key == 'avatar_created':
             self.logger.info('avatar created')

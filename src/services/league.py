@@ -15,12 +15,12 @@ class League(Base):
         self.league_model = LeagueModel
 
     def find(self, **kwargs):
-        return Base.find(self, model=self.league_model, **kwargs)
+        return self._find(model=self.league_model, **kwargs)
 
     @league_notification(operation='create')
     def create(self, **kwargs):
-        league = self.init(model=self.league_model, **kwargs)
-        return self.save(instance=league)
+        league = self._init(model=self.league_model, **kwargs)
+        return self._save(instance=league)
 
     def update(self, uuid, **kwargs):
         leagues = self.find(uuid=uuid)
@@ -31,8 +31,8 @@ class League(Base):
     @league_notification(operation='update')
     def apply(self, instance, **kwargs):
         # if league status is being updated we will trigger a notification
-        league = self.assign_attr(instance=instance, attr=kwargs)
-        return self.save(instance=league)
+        league = self._assign_attr(instance=instance, attr=kwargs)
+        return self._save(instance=league)
 
     def find_by_participant(self, user_uuid, include, paginate):
         query = self.league_model.query.add_entity(MemberMaterializedModel).filter(

@@ -79,16 +79,20 @@ class LeaguesListAPI(Base):
     @check_user
     def post(self):
         data = self.clean(schema=create_schema, instance=request.get_json())
+
+        owner = self.member.fetch_member(user_uuid=str(g.user))
+        if owner is None:
+            self.throw_error(http_code=self.code.BAD_REQUEST, msg='User not found')
+
         league = self.league.create(status='active', owner_uuid=g.user, name=data['name'])
 
-        external_member = self.member.fetch_member(user_uuid=str(g.user))
-
-        member = self.member.create(email=external_member['email'], user_uuid=g.user, league=league, status='invited')
-        _ = self.member_materialized.create(uuid=member.uuid, username=external_member['username'],
-                                            display_name=external_member['display_name'],
-                                            user=external_member['user_uuid'], email=external_member['email'],
+        member = self.member.create(email=owner['email'], user_uuid=g.user, league=league, status='invited')
+        # Todo: consider creating this asynchronously via notify or create using threading
+        _ = self.member_materialized.create(uuid=member.uuid, username=owner['username'],
+                                            display_name=owner['display_name'],
+                                            user=owner['user_uuid'], email=owner['email'],
                                             member=None, league=league.uuid,
-                                            country=external_member['country'], status='invited')
+                                            country=owner['country'], status='invited')
         return DataResponse(
             data={
                 'leagues': self.dump(

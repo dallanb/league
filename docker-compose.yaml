@@ -24,7 +24,7 @@ services:
       - ./manage.py:/home/app/manage.py
       - ./setup.py:/home/app/setup.py
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.league
+      - env/.env.league
       - ${HUNCHO_DIR}/secrets/s3/credentials.txt
     healthcheck:
       test: curl --fail -s league:5000/ping || exit 1
@@ -34,7 +34,10 @@ services:
     ports:
       - 20010:5000
     depends_on:
+      - league_cache
       - league_db
+      - league_kafka
+      - league_zookeeper
     networks:
       - app-net
   league_cache:
@@ -42,10 +45,9 @@ services:
     image: redis:6
     restart: unless-stopped
     volumes:
-      - ${HUNCHO_DIR}/data/dev/league_cache/redis_data:/var/libs/redis
-      - ${HUNCHO_DIR}/data/dev/league_cache/redis.conf:/usr/local/etc/redis/redis.conf
+      - cache_data:/var/libs/redis
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.league_cache
+      - env/.env.league_cache
     healthcheck:
       test: [ "CMD", "redis-cli","ping" ]
       interval: 30s
@@ -57,14 +59,34 @@ services:
     container_name: league_db
     image: postgres:9.6
     volumes:
-      - ${HUNCHO_DIR}/data/dev/league_db/data:/var/lib/postgresql/data/
+      - db_data:/var/lib/postgresql/data/
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.league_db
+      - env/.env.league_db
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U league" ]
       interval: 10s
       timeout: 5s
       retries: 20
+    networks:
+      - app-net
+  league_kafka:
+    container_name: league_kafka
+    image: wurstmeister/kafka:latest
+    restart: on-failure
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - env/.env.league_kafka
+    depends_on:
+      - league_zookeeper
+    networks:
+      - app-net
+  league_zookeeper:
+    container_name: league_zookeeper
+    image: wurstmeister/zookeeper:latest
+    restart: on-failure
+    env_file:
+      - env/.env.league_zookeeper
     networks:
       - app-net
   redis-commander:
@@ -74,11 +96,14 @@ services:
     ports:
       - 8081:8081
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.league-redis-commander
+      - env/.env.league-redis-commander
     depends_on:
       - league_cache
     networks:
       - app-net
+volumes:
+  cache_data:
+  db_data:
 networks:
   app-net:
     driver: bridge

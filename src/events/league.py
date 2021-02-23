@@ -1,5 +1,6 @@
 import logging
 
+from ..common import ManualException
 from ..services import LeagueService, MemberService, MemberMaterializedService
 
 
@@ -18,6 +19,9 @@ class League:
             self.logger.info('member updated')
             status = key.split('member_')[1]
             member = self.member_service.fetch_member(user_uuid=data['user_uuid'], league_uuid=data['league_uuid'])
+            if member is None:
+                raise ManualException(
+                    err=f'member with user_uuid: {data["user_uuid"]} and league_uuid: {data["league_uuid"]} not found')
             _ = self.materialized_service.update(uuid=data['uuid'], username=member['username'],
                                                  display_name=member['display_name'],
                                                  email=member['email'], user=member['user_uuid'], member=member['uuid'],

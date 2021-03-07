@@ -14,3 +14,4 @@ KAFKA_URL=192.168.0.125:9092
 KAFKA_TOPICS=sports,leagues,scores,members
 S3_FILEPATH=league/avatars/
 ALLOWED_EXTENSIONS=png,jpg,jpeg
+MAX_MEMBERS=10

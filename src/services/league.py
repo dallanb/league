@@ -3,6 +3,7 @@ from http import HTTPStatus
 
 from sqlalchemy.orm import joinedload
 
+from src import app
 from .base import Base
 from ..decorators import league_notification
 from ..models import League as LeagueModel, MemberMaterialized as MemberMaterializedModel
@@ -13,6 +14,7 @@ class League(Base):
         Base.__init__(self)
         self.logger = logging.getLogger(__name__)
         self.league_model = LeagueModel
+        self.max_members = int(app.config['MAX_MEMBERS'])
 
     def find(self, **kwargs):
         return self._find(model=self.league_model, **kwargs)
@@ -43,3 +45,11 @@ class League(Base):
                            MemberMaterializedModel.league == self.league_model.uuid).filter(
             MemberMaterializedModel.user == user_uuid)
         return self.db.run_query(query=query, **paginate)
+
+    # return True if limit is reached and False if not
+    def check_members_limit(self, instance):
+        grouped = instance.members_group_by(key_func=lambda x: x.status)
+        counts = {
+            'active' if k.value > 0 else 'inactive': len(list(g)) for k, g in grouped
+        }
+        return counts['active'] > self.max_members

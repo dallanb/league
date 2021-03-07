@@ -1,10 +1,6 @@
-import logging
-import time
-
 import pytest
 
 from src import services, ManualException
-from src.common import time_now
 from tests.helpers import generate_uuid
 
 league_service = services.LeagueService()
@@ -330,3 +326,17 @@ def test_find_by_participant(reset_db, pause_notification,
     combo = res.items[0]
     assert combo.League is not None
     assert combo.MemberMaterialized is not None
+
+
+def test_check_members_limit(reset_db, pause_notification,
+                             seed_league, seed_member,
+                             seed_member_materialized):
+    """
+    GIVEN 1 pending league instance, 1 active owner member instance and 1 active member instance in the database
+    WHEN the check_members_limit method is called
+    THEN it should return False since there is room for more members
+    """
+    leagues = league_service.find()
+    league = leagues.items[0]
+
+    assert not league_service.check_members_limit(instance=league)

@@ -80,6 +80,10 @@ class MembersListAPI(Base):
         if not leagues.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
 
+        league = leagues.items[0]
+        if self.league.check_members_limit(instance=league):
+            self.throw_error(http_code=self.code.BAD_REQUEST, msg='Member limit reached')
+
         # if the user does not include user_uuid in the payload then we are too assume this user is not present in
         # the system
         if not data['user_uuid']:
@@ -96,7 +100,7 @@ class MembersListAPI(Base):
             if existing_member is None:
                 self.throw_error(http_code=self.code.NOT_FOUND, msg='This user was not found')
 
-        member = self.member.create(user_uuid=data['user_uuid'], email=data['email'], league=leagues.items[0],
+        member = self.member.create(user_uuid=data['user_uuid'], email=data['email'], league=league,
                                     status='invited')
         _ = self.member_materialized.create(uuid=member.uuid,
                                             username=existing_member.get('username', None),
@@ -105,7 +109,7 @@ class MembersListAPI(Base):
                                             user=existing_member.get('user_uuid', None),
                                             member=None, status='invited',
                                             country=existing_member.get('country', None),
-                                            league=leagues.items[0].uuid)
+                                            league=league.uuid)
         return DataResponse(
             data={
                 'members': self.dump(

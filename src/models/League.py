@@ -1,3 +1,5 @@
+from itertools import groupby
+
 from sqlalchemy_utils import UUIDType
 from sqlalchemy_utils.types import TSVectorType
 
@@ -24,6 +26,10 @@ class League(db.Model, BaseMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def members_group_by(self, key_func):
+        members = self.members
+        return groupby(members, key_func)
 
 
 League.register()

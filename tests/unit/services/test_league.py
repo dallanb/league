@@ -324,7 +324,7 @@ def test_find_by_participant(reset_db, pause_notification,
     WHEN the check_league_status method is called
     THEN it should update the league status from 'pending' to 'ready'
     """
-    res = league_service.find_by_participant(user_uuid=pytest.user_uuid, include=[],
+    res = league_service.find_by_participant(user_uuid=pytest.user_uuid, user_status='pending', include=[],
                                              paginate={'page': 1, 'per_page': 10})
     assert res.total == 1
     combo = res.items[0]

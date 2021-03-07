@@ -3,7 +3,7 @@ from marshmallow_enum import EnumField
 from webargs import fields
 
 from ..avatars.schema import DumpAvatarSchema
-from ....common import LeagueStatusEnum
+from ....common import LeagueStatusEnum, MemberStatusEnum
 
 
 class CreateLeagueSchema(Schema):
@@ -68,6 +68,7 @@ class FetchMemberUserLeagueSchema(Schema):
     include = fields.DelimitedList(fields.String(), required=False, missing=[])
     expand = fields.DelimitedList(fields.String(), required=False, missing=[])
     user_uuid = fields.UUID()
+    member_status = fields.String(required=False, missing=MemberStatusEnum.active.name)
 
 
 create_schema = CreateLeagueSchema()

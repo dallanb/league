@@ -113,7 +113,7 @@ class MemberUserLeaguesListAPI(Base):
     def get(self, user_uuid):
         data = self.clean(schema=fetch_member_user_leagues_schema, instance={**request.args,
                                                                              'user_uuid': user_uuid})  # not cleaning user_uuid at base request level so make sure it is cleaned here
-        leagues = self.league.find_by_participant(user_uuid=data['user_uuid'], include=data['include'],
+        leagues = self.league.find_by_participant(user_uuid=data['user_uuid'], user_status=data['member_status'], include=data['include'],
                                                   paginate=
                                                   {'page': data['page'], 'per_page': data['per_page']})
         return DataResponse(

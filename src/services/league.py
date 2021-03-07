@@ -34,9 +34,9 @@ class League(Base):
         league = self._assign_attr(instance=instance, attr=kwargs)
         return self._save(instance=league)
 
-    def find_by_participant(self, user_uuid, include, paginate):
+    def find_by_participant(self, user_uuid, user_status, include, paginate):
         query = self.league_model.query.add_entity(MemberMaterializedModel).filter(
-            self.league_model.members.any(user_uuid=user_uuid))
+            self.league_model.members.any(user_uuid=user_uuid, status=user_status))
         for key in include:
             query = query.options(joinedload(key))
         query = query.join(MemberMaterializedModel,

@@ -52,4 +52,4 @@ class League(Base):
         counts = {
             'active' if k.value > 0 else 'inactive': len(list(g)) for k, g in grouped
         }
-        return counts['active'] > self.max_members
+        return counts.get('active', 0) > self.max_members

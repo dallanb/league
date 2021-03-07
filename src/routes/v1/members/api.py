@@ -172,8 +172,8 @@ class MembersMaterializedListAPI(Base):
                 '_metadata': self.prepare_metadata(
                     total_count=members.total,
                     page_count=len(members.items),
-                    page=data['page'],
-                    per_page=data['per_page']),
+                    page=data.get('page', None),
+                    per_page=data.get('per_page', None)),
                 'members': self.dump(
                     schema=dump_many_materialized_schema,
                     instance=members.items,

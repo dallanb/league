@@ -84,9 +84,12 @@ class MembersListAPI(Base):
         if self.league.check_members_limit(instance=league):
             self.throw_error(http_code=self.code.BAD_REQUEST, msg='Member limit reached')
 
+        members = self.member.find(league_uuid=league.uuid, **data)
+        if members.total:
+            self.throw_error(http_code=self.code.BAD_REQUEST, msg='This user already has been invited')
         # if the user does not include user_uuid in the payload then we are too assume this user is not present in
         # the system
-        if not data['user_uuid']:
+        if 'user_uuid' not in data:
             members = self.member.fetch_members(params={'email': data['email']})
             if members is None:
                 self.throw_error(http_code=self.code.BAD_REQUEST)
@@ -99,6 +102,8 @@ class MembersListAPI(Base):
             existing_member = self.member.fetch_member(user_uuid=str(data['user_uuid']))
             if existing_member is None:
                 self.throw_error(http_code=self.code.NOT_FOUND, msg='This user was not found')
+            if existing_member['email'] != data['email']:
+                self.throw_error(http_code=self.code.BAD_REQUEST, msg='Email is not associated with user_uuid')
 
         member = self.member.create(user_uuid=data['user_uuid'], email=data['email'], league=league,
                                     status='invited')

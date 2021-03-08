@@ -6,7 +6,7 @@ from src.common import MemberStatusEnum
 
 
 class CreateMemberSchema(Schema):
-    user_uuid = fields.UUID(required=False, missing=None)
+    user_uuid = fields.UUID(required=False)
     email = fields.Email(required=True)
 
 

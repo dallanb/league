@@ -162,6 +162,32 @@ def test_create_member(reset_db, pause_notification, mock_fetch_member, mock_fet
     assert members['league_uuid'] == str(league_uuid)
 
 
+def test_create_member_no_user_uuid(reset_db, pause_notification, mock_fetch_member, mock_fetch_members, seed_league):
+    """
+    GIVEN a Flask application configured for testing
+    WHEN the POST endpoint 'members' is requested
+    THEN check that the response is valid
+    """
+    league_uuid = pytest.league.uuid
+    # Headers
+    headers = {'X-Consumer-Custom-ID': pytest.user_uuid}
+
+    # Payload
+    payload = {'email': 'dallanbhatti@gmail.com'}
+
+    # Request
+    response = app.test_client().post(f'/leagues/{league_uuid}/members', json=payload, headers=headers)
+
+    # Response
+    assert response.status_code == 200
+    response = json.loads(response.data)
+    assert response['msg'] == "OK"
+    members = response['data']['members']
+    assert members['uuid'] is not None
+    assert members['user_uuid'] is None
+    assert members['league_uuid'] == str(league_uuid)
+
+
 ###########
 # Update
 ###########
@@ -190,6 +216,7 @@ def test_update_member(pause_notification):
     members = response['data']['members']
     assert members['uuid'] is not None
 
+
 #############
 # FAIL
 #############
@@ -198,7 +225,7 @@ def test_update_member(pause_notification):
 ###########
 # Create
 ###########
-def test_create_member_fail(reset_db, pause_notification, mock_fetch_member , mock_fetch_members, seed_league):
+def test_create_member_fail(reset_db, pause_notification, mock_fetch_member, mock_fetch_members, seed_league):
     """
     GIVEN a Flask application configured for testing
     WHEN the POST endpoint 'members' is requested

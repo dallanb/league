@@ -49,7 +49,6 @@ class League(Base):
     # return True if limit is reached and False if not
     def check_members_limit(self, instance):
         grouped = instance.members_group_by(key_func=lambda x: x.status)
-        counts = {
-            'active' if k.value > 0 else 'inactive': len(list(g)) for k, g in grouped
-        }
-        return counts.get('active', 0) > self.max_members
+        # get the total number of members whose status is not inactive
+        active = sum(len(list(g)) for k, g in grouped if k.value > 0)
+        return active > self.max_members

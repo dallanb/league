@@ -87,9 +87,9 @@ class MembersListAPI(Base):
         # if the user does not include user_uuid in the payload then we are too assume this user is not present in
         # the system
         if not data['user_uuid']:
-            members = self.member.fetch_members(params={'email': data['email'], 'league_uuid': None})
+            members = self.member.fetch_members(params={'email': data['email']})
             if members is None:
-                self.throw_error(http_code=self.code.NOT_FOUND, msg='This user was not found')
+                self.throw_error(http_code=self.code.BAD_REQUEST)
             if len(members):
                 self.throw_error(http_code=self.code.BAD_REQUEST,
                                  msg='This user already exists, please pass their user_uuid')

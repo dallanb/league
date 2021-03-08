@@ -181,14 +181,28 @@ def test_member_create(reset_db, pause_notification, seed_league, seed_member):
     assert member.user_uuid == user_uuid
 
 
-def test_member_create_dup(pause_notification):
+def test_member_create_dup_email(pause_notification):
     """
     GIVEN 2 member instance in the database
-    WHEN the create method is called with the exact same parameters of an existing member
+    WHEN the create method is called with the same email of an existing member
     THEN it should return 0 member and add 0 member instance into the database and ManualException with code 500
     """
     try:
-        _ = member_service.create(status='invited', email=pytest.email, user_uuid=pytest.user_uuid,
+        user_uuid = generate_uuid()
+        _ = member_service.create(status='invited', email=pytest.email, user_uuid=user_uuid,
+                                  league=pytest.league)
+    except ManualException as ex:
+        assert ex.code == 500
+
+
+def test_member_create_dup_user_uuid(pause_notification):
+    """
+    GIVEN 2 member instance in the database
+    WHEN the create method is called with the same user_uuid of an existing member
+    THEN it should return 0 member and add 0 member instance into the database and ManualException with code 500
+    """
+    try:
+        _ = member_service.create(status='invited', email='dallanbhatti+0@gmail.com', user_uuid=pytest.user_uuid,
                                   league=pytest.league)
     except ManualException as ex:
         assert ex.code == 500

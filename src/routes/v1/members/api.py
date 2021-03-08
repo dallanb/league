@@ -87,6 +87,7 @@ class MembersListAPI(Base):
         members = self.member.find(league_uuid=league.uuid, **data)
         if members.total:
             self.throw_error(http_code=self.code.BAD_REQUEST, msg='This user already has been invited')
+
         # if the user does not include user_uuid in the payload then we are too assume this user is not present in
         # the system
         if 'user_uuid' not in data:
@@ -96,7 +97,6 @@ class MembersListAPI(Base):
             if len(members):
                 self.throw_error(http_code=self.code.BAD_REQUEST,
                                  msg='This user already exists, please pass their user_uuid')
-
             existing_member = {}
         else:
             existing_member = self.member.fetch_member(user_uuid=str(data['user_uuid']))
@@ -105,7 +105,7 @@ class MembersListAPI(Base):
             if existing_member['email'] != data['email']:
                 self.throw_error(http_code=self.code.BAD_REQUEST, msg='Email is not associated with user_uuid')
 
-        member = self.member.create(user_uuid=data['user_uuid'], email=data['email'], league=league,
+        member = self.member.create(user_uuid=data.get('user_uuid', None), email=data['email'], league=league,
                                     status='invited')
         _ = self.member_materialized.create(uuid=member.uuid,
                                             username=existing_member.get('username', None),

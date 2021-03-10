@@ -103,6 +103,45 @@ def test_member_update(reset_db, pause_notification, seed_league, seed_member, s
     assert len(members.items) == 1
 
 
+def test_member_update_by_user(reset_db, pause_notification, seed_league, seed_member, seed_member_materialized):
+    """
+    GIVEN 1 member instance in the database
+    WHEN the update_by_user method is called
+    THEN it should return the number of items it updated in the database
+    """
+    updated_members = member_service.update_by_user(user=pytest.user_uuid, country='US')
+    assert updated_members == 1
+
+    members = member_service.find()
+    member = members.items[0]
+    assert member.country == 'US'
+
+
+def test_member_update_by_user_w_bad_user(reset_db, pause_notification, seed_league, seed_member,
+                                          seed_member_materialized):
+    """
+    GIVEN 1 member instance in the database
+    WHEN the update_by_user method is called with non existent user_uuid
+    THEN it should return the number of items it updated in the database
+    """
+    user_uuid = generate_uuid()
+    updated_members = member_service.update_by_user(user=user_uuid, country='US')
+    assert updated_members == 0
+
+
+def test_member_update_by_user_w_bad_field(reset_db, pause_notification, seed_league, seed_member,
+                                           seed_member_materialized):
+    """
+    GIVEN 1 member instance in the database
+    WHEN the update_by_user method is called with random field
+    THEN it should update no items in the database and ManualException with code 500
+    """
+    try:
+        _ = member_service.update_by_user(user=pytest.user_uuid, junk='junk')
+    except ManualException as ex:
+        assert ex.code == 500
+
+
 ###########
 # Apply
 ###########

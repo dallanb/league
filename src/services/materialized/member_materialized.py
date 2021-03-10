@@ -24,6 +24,10 @@ class MemberMaterialized(Base):
             self.error(code=HTTPStatus.NOT_FOUND)
         return self.apply(instance=materialized_members.items[0], **kwargs)
 
+    def update_by_user(self, user, **kwargs):
+        query = self.db.clean_query(model=self.materialized_model, user=user)
+        return self._update(query=query, **kwargs)
+
     def apply(self, instance, **kwargs):
         materialized_member = self._assign_attr(instance=instance, attr=kwargs)
         return self._save(instance=materialized_member)

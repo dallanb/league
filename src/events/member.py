@@ -36,6 +36,12 @@ class Member:
             if members.total:
                 member = members.items[0]
                 self.member_materialized_service.apply(instance=member, avatar=data['s3_filename'])
+        elif key == 'avatar_deleted':
+            self.logger.info('avatar deleted')
+            members = self.member_materialized_service.find(member=data['member_uuid'])
+            if members.total:
+                member = members.items[0]
+                self.member_materialized_service.apply(instance=member, avatar=None)
         elif key == 'country_updated':
             self.logger.info('country created')
             _ = self.member_materialized_service.update_by_user(user=data['user_uuid'],

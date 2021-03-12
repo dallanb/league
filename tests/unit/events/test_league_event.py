@@ -45,6 +45,7 @@ def test_league_member_active_sync(reset_db, pause_notification, mock_fetch_memb
 
     assert members.total == 1
     assert members.items[0].display_name == pytest.display_name
+    assert members.items[0].activation_time is not None
 
 
 def test_league_member_inactive_sync(reset_db, pause_notification, mock_fetch_member, seed_league, seed_member,

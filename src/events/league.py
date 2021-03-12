@@ -1,6 +1,6 @@
 import logging
 
-from ..common import ManualException
+from ..common import ManualException, MemberStatusEnum, time_now
 from ..services import LeagueService, MemberService, MemberMaterializedService
 
 
@@ -22,7 +22,9 @@ class League:
             if member is None:
                 raise ManualException(
                     err=f'member with user_uuid: {data["user_uuid"]} and league_uuid: {data["league_uuid"]} not found')
+            activation_time = time_now() if status == MemberStatusEnum.active.name else None
             _ = self.materialized_service.update(uuid=data['uuid'], username=member['username'],
                                                  display_name=member['display_name'],
                                                  email=member['email'], user=member['user_uuid'], member=member['uuid'],
-                                                 country=member['country'], status=status)
+                                                 country=member['country'], activation_time=activation_time,
+                                                 status=status)

@@ -29,6 +29,7 @@ class DumpMemberMaterializedSchema(Schema):
     uuid = fields.UUID()
     ctime = fields.Integer()
     mtime = fields.Integer()
+    activation_time = fields.Integer()
     name = fields.String()
     status = EnumField(MemberStatusEnum)
     avatar = fields.String()

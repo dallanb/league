@@ -18,6 +18,7 @@ class Config(object):
     S3_BUCKET = os.getenv("S3_BUCKET")
     S3_FILEPATH = os.getenv("S3_FILEPATH")
     ALLOWED_EXTENSIONS = os.getenv("ALLOWED_EXTENSIONS").split(',')
+    MAX_MEMBERS = os.getenv("MAX_MEMBERS", 10)
     REDIS_CONFIG = {
         'CACHE_TYPE': 'redis',
         'CACHE_REDIS_HOST': os.getenv("CACHE_HOST"),

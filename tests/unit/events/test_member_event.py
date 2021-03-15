@@ -62,3 +62,43 @@ def test_member_avatar_created_sync(reset_db, pause_notification, seed_league, s
 
     assert members.total == 1
     assert members.items[0].avatar == '123.jpg'
+
+
+def test_member_avatar_deleted_sync():
+    """
+    GIVEN 1 league instance, 1 member instance and 1 member materialized instance in the database
+    WHEN directly calling event member handle_event avatar_deleted
+    THEN event member handle_event avatar_deleted updates 1 member_materialized instance in the database
+    """
+    key = 'avatar_deleted'
+    value = {
+        'member_uuid': str(pytest.member_uuid),
+        's3_filename': '123.jpg',
+    }
+    events.Member().handle_event(key=key, data=value)
+
+    members = services.MemberMaterializedService().find()
+
+    assert members.total == 1
+    assert members.items[0].avatar == None
+
+
+def test_member_country_updated_sync(reset_db, pause_notification, seed_league, seed_member,
+                                     seed_member_materialized):
+    """
+    GIVEN 1 league instance, 1 member instance and 1 member materialized instance in the database
+    WHEN directly calling event member handle_event country_updated
+    THEN event member handle_event country_updated updates 1 member_materialized instance in the database
+    """
+    key = 'country_updated'
+    value = {
+        'uuid': str(pytest.member_uuid),
+        'user_uuid': str(pytest.user_uuid),
+        'country': 'US',
+    }
+    events.Member().handle_event(key=key, data=value)
+
+    members = services.MemberMaterializedService().find()
+
+    assert members.total == 1
+    assert members.items[0].country == 'US'

@@ -6,7 +6,7 @@ from src.common import MemberStatusEnum
 
 
 class CreateMemberSchema(Schema):
-    user_uuid = fields.UUID(required=False, missing=None)
+    user_uuid = fields.UUID(required=False)
     email = fields.Email(required=True)
 
 
@@ -29,6 +29,7 @@ class DumpMemberMaterializedSchema(Schema):
     uuid = fields.UUID()
     ctime = fields.Integer()
     mtime = fields.Integer()
+    activation_time = fields.Integer()
     name = fields.String()
     status = EnumField(MemberStatusEnum)
     avatar = fields.String()
@@ -66,8 +67,8 @@ class _FetchAllMemberMaterializedSchemaCompareBy(Schema):
 
 
 class FetchAllMemberMaterializedSchema(Schema):
-    page = fields.Int(required=False, missing=1)
-    per_page = fields.Int(required=False, missing=10)
+    page = fields.Int(required=False)
+    per_page = fields.Int(required=False)
     search = fields.String(required=False)
     sort_by = fields.String(required=False)
     league = fields.UUID(required=False, data_key="league_uuid")

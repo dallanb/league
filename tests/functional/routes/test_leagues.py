@@ -76,8 +76,11 @@ def test_fetch_all_member_user_league():
     # Header
     headers = {'X-Consumer-Custom-ID': pytest.user_uuid}
 
+    # Params
+    params = {'member_status': 'pending'}
+
     # Request
-    response = app.test_client().get(f'/members/leagues/user/{user_uuid}', headers=headers)
+    response = app.test_client().get(f'/members/leagues/user/{user_uuid}', headers=headers, query_string=params)
     # Response
     assert response.status_code == 200
     response = json.loads(response.data)
@@ -101,8 +104,11 @@ def test_fetch_all_my_member_user_league():
     # Header
     headers = {'X-Consumer-Custom-ID': pytest.user_uuid}
 
+    # Params
+    params = {'member_status': 'pending'}
+
     # Request
-    response = app.test_client().get(f'/members/leagues/user/me', headers=headers)
+    response = app.test_client().get(f'/members/leagues/user/me', headers=headers, query_string=params)
     # Response
     assert response.status_code == 200
     response = json.loads(response.data)

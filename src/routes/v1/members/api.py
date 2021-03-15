@@ -80,23 +80,32 @@ class MembersListAPI(Base):
         if not leagues.total:
             self.throw_error(http_code=self.code.NOT_FOUND)
 
+        league = leagues.items[0]
+        if self.league.check_members_limit(instance=league):
+            self.throw_error(http_code=self.code.BAD_REQUEST, msg='Member limit reached')
+
+        members = self.member.find(league_uuid=league.uuid, **data)
+        if members.total:
+            self.throw_error(http_code=self.code.BAD_REQUEST, msg='This user already has been invited')
+
         # if the user does not include user_uuid in the payload then we are too assume this user is not present in
         # the system
-        if not data['user_uuid']:
-            members = self.member.fetch_members(params={'email': data['email'], 'league_uuid': None})
+        if 'user_uuid' not in data:
+            members = self.member.fetch_members(params={'email': data['email']})
             if members is None:
-                self.throw_error(http_code=self.code.NOT_FOUND, msg='This user was not found')
+                self.throw_error(http_code=self.code.BAD_REQUEST)
             if len(members):
                 self.throw_error(http_code=self.code.BAD_REQUEST,
                                  msg='This user already exists, please pass their user_uuid')
-
             existing_member = {}
         else:
             existing_member = self.member.fetch_member(user_uuid=str(data['user_uuid']))
             if existing_member is None:
                 self.throw_error(http_code=self.code.NOT_FOUND, msg='This user was not found')
+            if existing_member['email'] != data['email']:
+                self.throw_error(http_code=self.code.BAD_REQUEST, msg='Email is not associated with user_uuid')
 
-        member = self.member.create(user_uuid=data['user_uuid'], email=data['email'], league=leagues.items[0],
+        member = self.member.create(user_uuid=data.get('user_uuid', None), email=data['email'], league=league,
                                     status='invited')
         _ = self.member_materialized.create(uuid=member.uuid,
                                             username=existing_member.get('username', None),
@@ -105,7 +114,7 @@ class MembersListAPI(Base):
                                             user=existing_member.get('user_uuid', None),
                                             member=None, status='invited',
                                             country=existing_member.get('country', None),
-                                            league=leagues.items[0].uuid)
+                                            league=league.uuid)
         return DataResponse(
             data={
                 'members': self.dump(
@@ -172,8 +181,8 @@ class MembersMaterializedListAPI(Base):
                 '_metadata': self.prepare_metadata(
                     total_count=members.total,
                     page_count=len(members.items),
-                    page=data['page'],
-                    per_page=data['per_page']),
+                    page=data.get('page', None),
+                    per_page=data.get('per_page', None)),
                 'members': self.dump(
                     schema=dump_many_materialized_schema,
                     instance=members.items,

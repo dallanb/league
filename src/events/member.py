@@ -22,6 +22,7 @@ class Member:
                 self.member_service.apply(instance=member, user_uuid=data['user_uuid'],
                                           status=status)
         elif key == 'display_name_updated':
+            self.logger.info('display_name updated')
             members = self.member_materialized_service.find(member=data['uuid'])
             if members.total:
                 member = members.items[0]
@@ -35,3 +36,13 @@ class Member:
             if members.total:
                 member = members.items[0]
                 self.member_materialized_service.apply(instance=member, avatar=data['s3_filename'])
+        elif key == 'avatar_deleted':
+            self.logger.info('avatar deleted')
+            members = self.member_materialized_service.find(member=data['member_uuid'])
+            if members.total:
+                member = members.items[0]
+                self.member_materialized_service.apply(instance=member, avatar=None)
+        elif key == 'country_updated':
+            self.logger.info('country created')
+            _ = self.member_materialized_service.update_by_user(user=data['user_uuid'],
+                                                                country=data['country'])

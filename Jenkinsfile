@@ -14,9 +14,48 @@ pipeline {
                     dockerImageName = registry + ":$BRANCH_NAME"
                     dockerImage = ''
                     if (env.BRANCH_NAME == 'qaw') {
-                        docker.image(dockerImageName).pull()
+                        try {
+                            docker.image(dockerImageName).pull()
+                        } catch (Exception e) {
+                            echo 'This image does not exist'
+                        }
                         dockerImage = docker.build(dockerImageName, "-f build/Dockerfile.$BRANCH_NAME --cache-from $dockerImageName .")
                     }
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                slackSend (color: '#0000FF', message: "Testing Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' ")
+                script {
+                    if (env.BRANCH_NAME == 'qaw') {
+                        try {
+                            sh "docker build -f build/Dockerfile.test --cache-from $dockerImageName -t $registry:test ."
+                            sh "docker-compose -f docker-compose.test.yaml up -d"
+                            sh "bash bin/test.sh"
+                            sh "docker cp app:/home/app/tests.xml ."
+                            sh "docker cp app:/home/app/coverage.xml ."
+                        } finally {
+                            sh "docker-compose -f docker-compose.test.yaml down -v"
+                            sh "docker image rm $registry:test"
+                        }
+                    }
+                }
+            }
+            post {
+                always {
+                    script {
+                        testSummary = junit testResults: 'tests.xml'
+                        cobertura coberturaReportFile: 'coverage.xml', enableNewApi: true
+                    }
+                    slackSend (
+                       color: '#FFFF00',
+                       message: "TEST SUMMARY - Passed: ${testSummary.passCount}, Failures: ${testSummary.failCount}, Skipped: ${testSummary.skipCount}"
+                    )
+                    slackSend (
+                       color: '#FFA500',
+                       message: "COVERAGE SUMMARY - Report generated at ${env.BUILD_URL}cobertura"
+                    )
                 }
             }
         }

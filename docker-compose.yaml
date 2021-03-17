@@ -16,7 +16,6 @@ services:
       dockerfile: ./build/Dockerfile
     restart: on-failure
     volumes:
-      - ./migrations:/home/app/migrations
       - ./bin:/home/app/bin
       - ./tests:/home/app/tests
       - ./seeds:/home/app/seeds
@@ -25,23 +24,44 @@ services:
       - ./manage.py:/home/app/manage.py
       - ./setup.py:/home/app/setup.py
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.league
+      - env/.env.league
+      - ${HUNCHO_DIR}/secrets/s3/credentials.txt
     healthcheck:
       test: curl --fail -s league:5000/ping || exit 1
-      interval: 60s
+      interval: 10s
       timeout: 5s
       retries: 5
+    ports:
+      - 20010:5000
     depends_on:
+      - league_cache
       - league_db
+      - league_kafka
+      - league_zookeeper
+    networks:
+      - app-net
+  league_cache:
+    container_name: league_cache
+    image: redis:6
+    restart: unless-stopped
+    volumes:
+      - cache_data:/var/libs/redis
+    env_file:
+      - env/.env.league_cache
+    healthcheck:
+      test: [ "CMD", "redis-cli","ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     networks:
       - app-net
   league_db:
     container_name: league_db
     image: postgres:9.6
     volumes:
-      - ${HUNCHO_DIR}/data/dev/league_db/data:/var/lib/postgresql/data/
+      - db_data:/var/lib/postgresql/data/
     env_file:
-      - ${HUNCHO_DIR}/env/dev/.env.league_db
+      - env/.env.league_db
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U league" ]
       interval: 10s
@@ -49,6 +69,41 @@ services:
       retries: 20
     networks:
       - app-net
+  league_kafka:
+    container_name: league_kafka
+    image: wurstmeister/kafka:latest
+    restart: on-failure
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - env/.env.league_kafka
+    depends_on:
+      - league_zookeeper
+    networks:
+      - app-net
+  league_zookeeper:
+    container_name: league_zookeeper
+    image: wurstmeister/zookeeper:latest
+    restart: on-failure
+    env_file:
+      - env/.env.league_zookeeper
+    networks:
+      - app-net
+  redis-commander:
+    container_name: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: unless-stopped
+    ports:
+      - 8081:8081
+    env_file:
+      - env/.env.league-redis-commander
+    depends_on:
+      - league_cache
+    networks:
+      - app-net
+volumes:
+  cache_data:
+  db_data:
 networks:
   app-net:
     driver: bridge

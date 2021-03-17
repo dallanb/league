@@ -1,0 +1,17 @@
+FLASK_APP=src/__init__.py
+FLASK_ENV=production
+TESTING=True
+PROPAGATE_EXCEPTIONS=None
+DATABASE_URL=postgresql://app:password@db:5432/app
+SQL_HOST=db
+SQL_PORT=5432
+DATABASE=app
+CACHE_HOST=cache
+CACHE_PORT=6379
+SECRET_KEY=dallanbhatti
+MEMBER_URL=http://192.168.0.150:30008
+KAFKA_URL=192.168.0.125:9092
+KAFKA_TOPICS=sports,leagues,scores,members
+S3_FILEPATH=league/avatars/
+ALLOWED_EXTENSIONS=png,jpg,jpeg
+MAX_MEMBERS=10

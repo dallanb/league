@@ -1,4 +1,6 @@
 Babel==2.8.0
+boto3==1.14.52
+botocore==1.17.52
 coloredlogs==14.0
 Flask==1.1.1
 Flask-Caching==1.9.0
@@ -19,8 +21,11 @@ psycopg2-binary==2.8.3
 pyJWT==1.7.1
 pylint==2.4.4
 pytest==5.4.3
+pytest-cov==2.11.1
+pytest-mock==3.5.1
 python-dateutil==2.8.1
 redis==3.5.3
 requests==2.23.0
+SQLAlchemy-Searchable==1.2.0
 SQLAlchemy-Utils==0.36.6
 webargs==6.1.0

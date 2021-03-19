@@ -1,5 +1,19 @@
+<p align="center">
+  <img alt="Tech Tapir" src="https://techtapir.com/statics/img/tech_tapir_white_small.png">
+</p>
+
 # league
 LEAGUE Microservice
+
+
+## Description
+This service is responsible for handling league in the application
+
+### How to run
+```make deploy```
+
+### How to clean up
+```make down```
 
 ### API
 #### Documentation

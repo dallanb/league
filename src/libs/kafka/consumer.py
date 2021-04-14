@@ -11,6 +11,7 @@ class Consumer(multiprocessing.Process):
         multiprocessing.Process.__init__(self)
         self.stop_event = multiprocessing.Event()
         self.url = app.config['KAFKA_URL']
+        self.group_id = app.config['KAFKA_GROUP_ID']
         self.topics = topics
         self.event_listener = event_listener
 
@@ -20,7 +21,7 @@ class Consumer(multiprocessing.Process):
         self.stop_event.set()
 
     def run(self):
-        consumer = KafkaConsumer(bootstrap_servers=self.url, key_deserializer=bytes.decode,
+        consumer = KafkaConsumer(bootstrap_servers=self.url, group_id=self.group_id, key_deserializer=bytes.decode,
                                  value_deserializer=lambda v: json.loads(v.decode('utf-8')))
         consumer.subscribe(self.topics)
 

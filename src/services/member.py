@@ -2,7 +2,7 @@ import logging
 from http import HTTPStatus
 
 from .base import Base
-from services.league.src.decorators.notifications import member_notification
+from ..decorators.notifications import member_notification
 from ..external import Member as MemberExternal
 from ..models import Member as MemberModel
 

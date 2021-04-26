@@ -5,7 +5,7 @@ from sqlalchemy.orm import joinedload
 
 from src import app
 from .base import Base
-from services.league.src.decorators.notifications import league_notification
+from ..decorators.notifications import league_notification
 from ..models import League as LeagueModel, MemberMaterialized as MemberMaterializedModel
 
 

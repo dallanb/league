@@ -1,4 +1,6 @@
-from flask import Flask
+import traceback
+
+from flask import Flask, request
 from flask_caching import Cache
 from flask_cors import CORS
 from flask_marshmallow import Marshmallow
@@ -49,7 +51,7 @@ from .common import (
 @app.errorhandler(Exception)
 @marshal_with(ErrorResponse.marshallable())
 def handle_error(error):
-    logging.error(f'Error: {error}')
+    logging.error(traceback.format_exc())
     return ErrorResponse(), 500
 
 
@@ -70,3 +72,18 @@ consumer = Consumer(topics=app.config['KAFKA_TOPICS'], event_listener=new_event_
 @app.before_first_request
 def func():
     consumer.start()
+
+
+@app.before_request
+def log_request_info():
+    if request.path != '/ping':
+        logging.info(f'request: {request.remote_addr} - - {request.method} {request.url}')
+
+
+@app.after_request
+def log_response_info(response):
+    if request.path != '/ping':
+        logging.info(
+            f'response: {response.status},  {response.data.decode("utf-8")}'
+        )
+    return response

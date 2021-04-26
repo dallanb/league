@@ -1,9 +1,8 @@
-import concurrent.futures
 import logging
 from http import HTTPStatus
 
 from .base import Base
-from ..decorators import member_notification
+from services.league.src.decorators.notifications import member_notification
 from ..external import Member as MemberExternal
 from ..models import Member as MemberModel
 

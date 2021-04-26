@@ -5,6 +5,7 @@ from flask_restful import Resource
 from http import HTTPStatus
 from marshmallow import ValidationError
 from ...common.error import ManualException
+from ...decorators import log_trace
 from ...services import Base as Service
 
 
@@ -24,6 +25,7 @@ class Base(Resource):
             Base.throw_error(http_code=self.code.BAD_REQUEST, err=err.messages)
 
     @staticmethod
+    @log_trace
     def throw_error(http_code, **kwargs):
         if http_code is None:
             raise ManualException()

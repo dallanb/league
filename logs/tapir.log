@@ -1,0 +1,12 @@
+2021-04-26 23:26:07,459 [INFO] werkzeug::_internal|113::  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+2021-04-26 23:26:07,460 [INFO] werkzeug::_internal|113::  * Restarting with stat
+2021-04-26 23:26:08,539 [WARNING] werkzeug::_internal|113::  * Debugger is active!
+2021-04-26 23:26:08,542 [INFO] werkzeug::_internal|113::  * Debugger PIN: 231-920-005
+2021-04-26 23:26:13,916 [INFO] werkzeug::_internal|113:: 192.168.192.7 - - [26/Apr/2021 23:26:13] "[37mGET /ping HTTP/1.1[0m" 200 -
+2021-04-26 23:26:24,002 [INFO] werkzeug::_internal|113:: 192.168.192.7 - - [26/Apr/2021 23:26:24] "[37mGET /ping HTTP/1.1[0m" 200 -
+2021-04-26 23:28:47,752 [INFO] werkzeug::_internal|113::  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+2021-04-26 23:28:47,753 [INFO] werkzeug::_internal|113::  * Restarting with stat
+2021-04-26 23:28:48,773 [WARNING] werkzeug::_internal|113::  * Debugger is active!
+2021-04-26 23:28:48,774 [INFO] werkzeug::_internal|113::  * Debugger PIN: 319-856-137
+2021-04-26 23:28:54,079 [INFO] werkzeug::_internal|113:: 192.168.208.7 - - [26/Apr/2021 23:28:54] "[37mGET /ping HTTP/1.1[0m" 200 -
+2021-04-26 23:29:04,206 [INFO] werkzeug::_internal|113:: 192.168.208.7 - - [26/Apr/2021 23:29:04] "[37mGET /ping HTTP/1.1[0m" 200 -

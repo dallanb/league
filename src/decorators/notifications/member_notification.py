@@ -1,6 +1,6 @@
 from functools import wraps
 
-from src.notifications import member_created, member_pending, member_active, member_inactive
+from ...notifications import member_created, member_pending, member_active, member_inactive
 
 
 class member_notification:

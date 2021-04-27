@@ -28,7 +28,7 @@ def test_member_notification_member_pending(reset_db, mock_league_notification_c
     assert msg.value['uuid'] == str(pytest.member.uuid)
 
 
-def test_member_notification_member_active(kafka_conn_last_msg):
+def test_member_notification_member_active(kafka_conn_last_msg, mock_fetch_member):
     pytest.member = services.MemberService().update(uuid=pytest.member.uuid, status='active')
     time.sleep(0.5)
     msg = kafka_conn_last_msg('leagues')
@@ -38,7 +38,7 @@ def test_member_notification_member_active(kafka_conn_last_msg):
     assert msg.value['uuid'] == str(pytest.member.uuid)
 
 
-def test_member_notification_member_inactive(kafka_conn_last_msg):
+def test_member_notification_member_inactive(kafka_conn_last_msg, mock_fetch_member):
     pytest.member = services.MemberService().update(uuid=pytest.member.uuid, status='inactive')
     time.sleep(0.5)
     msg = kafka_conn_last_msg('leagues')

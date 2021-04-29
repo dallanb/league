@@ -1,9 +1,8 @@
-import concurrent.futures
 import logging
 from http import HTTPStatus
 
 from .base import Base
-from ..decorators import member_notification
+from ..decorators.notifications import member_notification
 from ..external import Member as MemberExternal
 from ..models import Member as MemberModel
 
@@ -43,15 +42,28 @@ class Member(Base):
             return None
 
     def fetch_member(self, user_uuid, league_uuid=None):
-        cache_key = user_uuid if not league_uuid else f'{user_uuid}_{league_uuid}'
-        hit = self.cache.get(cache_key)
+        cache_key = self.get_member_cache_key(user_uuid=user_uuid, league_uuid=league_uuid)
+        hit = self.get_member_cache(key=cache_key)
         if hit:
             return hit
         try:
             res = MemberExternal().fetch_member_user(uuid=user_uuid, params={'league_uuid': league_uuid})
             member = res['data']['members']
-            self.cache.set(cache_key, member, 3600)
+            self.set_member_cache(key=cache_key, val=member, timeout=3600)
             return member
         except TypeError:
             self.logger.error(f'fetch member failed for user_uuid: {user_uuid} and league_uuid: {league_uuid}')
             return None
+
+    @staticmethod
+    def get_member_cache_key(user_uuid, league_uuid=None):
+        return user_uuid if not league_uuid else f'{user_uuid}_{league_uuid}'
+
+    def get_member_cache(self, key):
+        return self.cache.get(key)
+
+    def set_member_cache(self, key, val, timeout):
+        return self.cache.set(key, val, timeout)
+
+    def delete_member_cache(self, key):
+        return self.cache.delete(key)

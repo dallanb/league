@@ -1,4 +1,5 @@
 import pytest
+import logging
 
 from src import services, ManualException
 from tests.helpers import generate_uuid
@@ -316,3 +317,58 @@ def test_fetch_member(mock_fetch_member):
     member = member_service.fetch_member(user_uuid=str(pytest.user_uuid), league_uuid=str(pytest.league.uuid))
     assert member['uuid'] is not None
     assert member['user_uuid'] == str(pytest.user_uuid)
+
+
+def test_get_member_cache_key(reset_db, reset_cache, seed_league):
+    """
+    GIVEN 0 member in the cache
+    WHEN the get_member_cache_key method is called
+    THEN it should return 1 cache_key
+    """
+    cache_key = member_service.get_member_cache_key(user_uuid=str(pytest.user_uuid),
+                                                    league_uuid=str(pytest.league.uuid))
+    assert cache_key == f'{str(pytest.user_uuid)}_{str(pytest.league.uuid)}'
+    cache_key = member_service.get_member_cache_key(user_uuid=str(pytest.user_uuid))
+    assert cache_key == f'{str(pytest.user_uuid)}'
+
+
+def test_set_member_cache(reset_db, reset_cache, seed_league):
+    """
+    GIVEN 0 member in the cache
+    WHEN the set_member_cache method is called
+    THEN it should return true
+    """
+    cache_key = member_service.get_member_cache_key(user_uuid=str(pytest.user_uuid),
+                                                    league_uuid=str(pytest.league.uuid))
+    res = member_service.set_member_cache(key=cache_key, val={'ping': 'pong'}, timeout=3600)
+    assert res is True
+
+
+def test_get_member_cache(reset_db, reset_cache, seed_league):
+    """
+    GIVEN 1 member in the cache
+    WHEN the get_member_cache method is called
+    THEN it should return 1 member
+    """
+    cache_key = member_service.get_member_cache_key(user_uuid=str(pytest.user_uuid),
+                                                    league_uuid=str(pytest.league.uuid))
+    val = {'ping': 'pong'}
+    _ = member_service.set_member_cache(key=cache_key, val=val, timeout=3600)
+    member = member_service.get_member_cache(key=cache_key)
+    assert member == val
+
+
+def test_delete_member_cache(reset_db, reset_cache, seed_league):
+    """
+    GIVEN 1 member in the cache
+    WHEN the delete_member_cache method is called
+    THEN it should return 1
+    """
+    cache_key = member_service.get_member_cache_key(user_uuid=str(pytest.user_uuid),
+                                                    league_uuid=str(pytest.league.uuid))
+    val = {'ping': 'pong'}
+    _ = member_service.set_member_cache(key=cache_key, val=val, timeout=3600)
+    res = member_service.delete_member_cache(key=cache_key)
+    assert res == 1
+    member = member_service.get_member_cache(key=cache_key)
+    assert member is None

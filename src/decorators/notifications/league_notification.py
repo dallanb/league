@@ -1,6 +1,6 @@
 from functools import wraps
 
-from src.notifications import league_created, league_inactive, name_updated
+from ...notifications import league_created, league_inactive, name_updated
 
 
 class league_notification:

@@ -30,19 +30,19 @@ class Config(object):
         'loggers': {
             '': {  # root logger
                 'level': 'NOTSET',
-                'handlers': ['info_coloured_console', 'debug_rotating_file_handler', 'error_file_handler'],
+                'handlers': ['debug_coloured_console', 'info_rotating_file_handler', 'error_file_handler'],
             }
         },
         'handlers': {
-            'info_coloured_console': {
-                'level': 'INFO',
+            'debug_coloured_console': {
+                'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
                 'formatter': 'coloured_console',
                 'stream': 'ext://sys.stdout'
             },
-            'debug_rotating_file_handler': {
+            'info_rotating_file_handler': {
                 'level': 'INFO',
-                'formatter': 'debug',
+                'formatter': 'info',
                 'class': 'logging.handlers.TimedRotatingFileHandler',
                 'filename': 'logs/tapir.log',
                 'when': 'D',
@@ -50,7 +50,7 @@ class Config(object):
                 'backupCount': 10
             },
             'error_file_handler': {
-                'level': 'ERROR',
+                'level': 'WARNING',
                 'formatter': 'error',
                 'class': 'logging.FileHandler',
                 'filename': 'logs/error.log',
@@ -58,6 +58,9 @@ class Config(object):
             }
         },
         'formatters': {
+            'info': {
+                'format': '%(asctime)s [%(levelname)s] %(name)s::%(module)s|%(lineno)s:: %(message)s'
+            },
             'debug': {
                 'format': '%(asctime)s [%(levelname)s] %(name)s::%(module)s|%(lineno)s:: %(message)s'
             },

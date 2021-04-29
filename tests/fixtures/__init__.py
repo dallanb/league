@@ -6,6 +6,7 @@ from .mock_member_notification import mock_member_notification_create, mock_memb
 from .mock_upload_file import mock_upload_file
 from .mock_upload_fileobj import mock_upload_fileobj
 from .pause_notification import pause_notification
+from .reset_cache import reset_cache
 from .reset_db import reset_db
 from .seed_avatar import seed_avatar
 from .seed_league import seed_league

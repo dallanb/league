@@ -18,6 +18,10 @@ class League:
         elif key == 'member_pending' or key == 'member_active' or key == 'member_inactive':
             self.logger.info('member updated')
             status = key.split('member_')[1]
+            # we have to invalidate member cache since we know an update has just happened
+            cache_key = self.member_service.get_member_cache_key(user_uuid=data['user_uuid'],
+                                                                 league_uuid=data['league_uuid'])
+            self.member_service.delete_member_cache(key=cache_key)
             member = self.member_service.fetch_member(user_uuid=data['user_uuid'], league_uuid=data['league_uuid'])
             if member is None:
                 raise ManualException(
